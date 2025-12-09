@@ -329,7 +329,6 @@ export const CostView: React.FC<CostViewProps> = ({
             return (
               <div key={record.rowIndex || Math.random()} 
                 className={`bg-white p-4 rounded-xl border border-gray-100 shadow-sm transition-all ${isDeleting && deleteConfirmId === record.rowIndex ? 'opacity-50' : ''}`}
-                // Also allow clicking body to edit, but we have specific buttons now
                 onClick={(e) => handleOpenEdit(e, record)}
               >
                 
