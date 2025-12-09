@@ -1,7 +1,7 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { GOOGLE_SCRIPT_URL, GOOGLE_SHEET_URL } from '../constants';
-import { SheetIcon, PlusIcon, RefreshIcon, EditIcon, TrashIcon, CheckCircleIcon, XIcon } from '../components/Icons';
+import { SheetIcon, PlusIcon, RefreshIcon, EditIcon, TrashIcon, XIcon, CalculatorIcon, UsersIcon } from '../components/Icons';
 import { ExpenseRecord } from '../types';
 
 interface CostViewProps {
@@ -51,10 +51,6 @@ export const CostView: React.FC<CostViewProps> = ({
   const totalJPY = expenses.reduce((sum, r) => sum + r.amountJpy, 0);
 
   // 2. Settlement Calculation
-  // Logic: 
-  // Xiang Balance = (Xiang Paid) - (Xiang Should Pay)
-  // If Positive: Xiang paid more than share -> Qian owes Xiang
-  // If Negative: Xiang paid less than share -> Xiang owes Qian
   const settlement = useMemo(() => {
     let xiangPaidTwd = 0;
     let xiangPaidJpy = 0;
@@ -81,7 +77,8 @@ export const CostView: React.FC<CostViewProps> = ({
 
   // --- FORMATTERS ---
   const formatMoney = (val: number, curr: 'JPY' | 'TWD') => {
-    return `$${Math.round(val).toLocaleString()}`;
+    const symbol = curr === 'JPY' ? '¥' : '$';
+    return `${symbol}${Math.round(val).toLocaleString()}`;
   };
 
   const formatDate = (dateStr: string) => {
@@ -145,7 +142,6 @@ export const CostView: React.FC<CostViewProps> = ({
     if (record.amountTwd > 0) {
       setCurrency('TWD');
       setAmount(String(record.amountTwd));
-      // If manual, prepopulate input
       if (record.splitType === 'manual') {
         setManualXiangInput(String(record.splitXiangTwd));
       } else {
@@ -206,7 +202,6 @@ export const CostView: React.FC<CostViewProps> = ({
     }
   };
 
-  // Calculate split amounts for display and submission
   const calculateSplits = () => {
     const total = Number(amount) || 0;
     
@@ -217,12 +212,10 @@ export const CostView: React.FC<CostViewProps> = ({
       xiangAmt = total / 2;
       qianAmt = total / 2;
     } else {
-      // Manual
       xiangAmt = Number(manualXiangInput) || 0;
       qianAmt = total - xiangAmt;
     }
 
-    // Assign to correct currency buckets
     const splits = {
       splitXiangTwd: currency === 'TWD' ? xiangAmt : 0,
       splitXiangJpy: currency === 'JPY' ? xiangAmt : 0,
@@ -257,7 +250,6 @@ export const CostView: React.FC<CostViewProps> = ({
         amountTwd: currency === 'TWD' ? Number(amount) : 0,
         amountJpy: currency === 'JPY' ? Number(amount) : 0,
         note: note.trim(),
-        // Split Data Fields
         splitType: splitType,
         ...splits
       };
@@ -284,7 +276,7 @@ export const CostView: React.FC<CostViewProps> = ({
   return (
     <div className="pb-32 pt-5 px-5 max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
       
-      {/* HEADER */}
+      {/* HEADER ACTIONS */}
       <div className="flex justify-between items-end mb-6">
         <div>
           <h2 className="text-xs font-bold tracking-[0.2em] text-mag-gray uppercase mb-1 pl-1">EXPENSES</h2>
@@ -294,26 +286,26 @@ export const CostView: React.FC<CostViewProps> = ({
             <button 
               onClick={() => setShowSettlement(true)} 
               className="p-3 rounded-full shadow-sm active:scale-95 transition-all bg-white text-mag-gray border border-gray-200 hover:text-mag-black"
-              title="顯示結算"
+              title="查看結算"
             >
-                <span className="font-bold text-xs">結算</span>
+                <CalculatorIcon className="w-6 h-6" />
             </button>
-            <button onClick={() => { setActionError(null); onRefresh(); }} className="bg-white text-mag-gray border border-gray-200 p-3 rounded-full shadow-sm hover:text-mag-black active:scale-95 transition-all">
+            <button onClick={() => { setActionError(null); onRefresh(); }} className="bg-white text-mag-gray border border-gray-200 p-3 rounded-full shadow-sm hover:text-mag-black active:scale-95 transition-all" title="重新整理">
                 <RefreshIcon className={`w-6 h-6 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
-            <button onClick={handleOpenAdd} className="bg-mag-gold text-white p-3 rounded-full shadow-lg hover:bg-[#b08d48] active:scale-95 transition-transform">
+            <button onClick={handleOpenAdd} className="bg-mag-gold text-white p-3 rounded-full shadow-lg hover:bg-[#b08d48] active:scale-95 transition-transform" title="記一筆">
                 <PlusIcon className="w-6 h-6" />
             </button>
         </div>
       </div>
 
-      {/* SUMMARY (Always Visible) */}
+      {/* SUMMARY */}
       <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-mag-black text-white p-5 rounded-xl shadow-float">
+        <div className="bg-mag-black text-white p-5 rounded-xl shadow-float relative overflow-hidden">
           <div className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Total JPY</div>
           <div className="text-2xl font-mono font-bold">¥{totalJPY.toLocaleString()}</div>
         </div>
-        <div className="bg-white text-mag-black border border-gray-100 p-5 rounded-xl shadow-sm">
+        <div className="bg-white text-mag-black border border-gray-100 p-5 rounded-xl shadow-sm relative overflow-hidden">
           <div className="text-[10px] font-bold uppercase tracking-wider text-mag-gray mb-2">Total TWD</div>
           <div className="text-2xl font-mono font-bold text-mag-black">${totalTWD.toLocaleString()}</div>
         </div>
@@ -326,68 +318,74 @@ export const CostView: React.FC<CostViewProps> = ({
         </div>
       )}
 
-      {/* LIST */}
+      {/* EXPENSE LIST */}
       <div className="space-y-3">
         {expenses.length === 0 && !isLoading ? (
           <div className="text-center py-10 text-gray-400 border border-dashed rounded-xl">尚無紀錄</div>
         ) : (
           expenses.map((record) => {
-            const isValidRow = record.rowIndex && record.rowIndex > 0;
+            const isXiang = record.payer === '想想';
+            
             return (
-              <div key={record.rowIndex || Math.random()} className={`bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all ${isDeleting && deleteConfirmId === record.rowIndex ? 'opacity-50' : ''}`}>
+              <div key={record.rowIndex || Math.random()} 
+                className={`bg-white p-4 rounded-xl border border-gray-100 shadow-sm transition-all ${isDeleting && deleteConfirmId === record.rowIndex ? 'opacity-50' : ''}`}
+                // Also allow clicking body to edit, but we have specific buttons now
+                onClick={(e) => handleOpenEdit(e, record)}
+              >
                 
-                {/* TOP ROW: Metadata */}
-                <div className="flex justify-between items-start gap-2 mb-1">
-                   <div className="flex flex-wrap items-center gap-2 flex-1">
-                      <span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                {/* Row 1: Date | Payer | Split Status | Actions */}
+                <div className="flex justify-between items-start mb-2">
+                   {/* Left: Info */}
+                   <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold text-gray-400">
                         {formatDate(record.date)}
                       </span>
-                      <span className={`text-[10px] font-bold border px-1.5 py-0.5 rounded ${
-                        record.payer === '想想' ? 'border-pink-200 text-pink-500 bg-pink-50' : 'border-blue-200 text-blue-600 bg-blue-50'
-                      }`}>
+                      
+                      <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${isXiang ? 'bg-pink-50 text-pink-500 border-pink-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
                         {record.payer}
-                      </span>
+                      </div>
+
                       {record.splitType === 'manual' && (
-                        <span className="text-[10px] font-bold border border-gray-200 text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded">
-                          手動分帳
-                        </span>
-                      )}
-                      {record.note && (
-                         <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded inline-block truncate max-w-[120px]">
-                           {record.note}
-                         </span>
+                        <div className="text-gray-400" title="手動分帳">
+                           <UsersIcon className="w-3.5 h-3.5" />
+                        </div>
                       )}
                    </div>
 
-                   {/* Actions Buttons */}
-                   <div className="flex gap-1 shrink-0">
+                   {/* Right: Actions (Edit / Delete) */}
+                   <div className="flex items-center gap-1 -mr-1">
                       <button 
-                        type="button"
                         onClick={(e) => handleOpenEdit(e, record)}
-                        className="p-1.5 bg-gray-50 text-gray-400 hover:text-mag-gold hover:bg-mag-gold/10 rounded-lg transition-colors cursor-pointer active:scale-95"
+                        className="p-1.5 text-gray-300 hover:text-mag-gold transition-colors rounded-lg hover:bg-gray-50"
                         title="編輯"
                       >
-                        <EditIcon className="w-4 h-4" />
+                         <EditIcon className="w-4 h-4" />
                       </button>
-
                       <button 
-                        type="button"
                         onClick={(e) => handleRequestDelete(e, record.rowIndex)}
-                        className={`p-1.5 rounded-lg transition-colors cursor-pointer active:scale-95 ${isValidRow ? 'bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50' : 'bg-red-50 text-red-500'}`}
-                        title={isValidRow ? "刪除" : "資料異常"}
+                        className="p-1.5 text-gray-300 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
+                        title="刪除"
                       >
-                        {!isValidRow ? <span className="text-xs font-bold">⚠️</span> : <TrashIcon className="w-4 h-4" />}
+                         <TrashIcon className="w-4 h-4" />
                       </button>
                    </div>
                 </div>
 
-                {/* BOTTOM ROW: Item Name & Amount */}
-                <div className="flex justify-between items-center gap-4">
-                   <h4 className="text-base font-bold text-mag-black leading-tight break-words flex-1">
-                     {record.item}
-                   </h4>
+                {/* Row 2: Item Name & Amount */}
+                <div className="flex justify-between items-end gap-3">
+                   <div className="flex-1 min-w-0">
+                      <h4 className="text-base font-bold text-mag-black leading-tight break-words mb-0.5">
+                        {record.item}
+                      </h4>
+                      {/* Note displayed below item */}
+                      {record.note && (
+                        <p className="text-[10px] text-gray-400 truncate">
+                          {record.note}
+                        </p>
+                      )}
+                   </div>
                    
-                   <div className="text-base font-bold font-mono text-mag-black text-right shrink-0">
+                   <div className="text-lg font-bold font-mono text-mag-black shrink-0 tracking-tight text-right">
                       {record.amountJpy > 0 && <div>{formatMoney(record.amountJpy, 'JPY')}</div>}
                       {record.amountTwd > 0 && <div>{formatMoney(record.amountTwd, 'TWD')}</div>}
                    </div>
@@ -439,7 +437,7 @@ export const CostView: React.FC<CostViewProps> = ({
                 <div className="text-center">
                   <div className="text-xs font-bold text-gray-400 mb-1">日幣結算</div>
                   <div className={`text-2xl font-mono font-bold ${settlement.jpy === 0 ? 'text-white' : settlement.jpy > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                     {settlement.jpy > 0 ? '+' : ''}{Math.round(settlement.jpy).toLocaleString()}
+                     {settlement.jpy > 0 ? '+' : '¥'}{Math.round(settlement.jpy).toLocaleString()}
                   </div>
                    <div className="text-[10px] text-gray-400 mt-1">
                     {Math.abs(settlement.jpy) === 0 ? '兩清' : settlement.jpy > 0 ? '錢錢 給 想想' : '想想 給 錢錢'}
@@ -459,9 +457,18 @@ export const CostView: React.FC<CostViewProps> = ({
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
           <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl z-10 p-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-             <div className="flex justify-between mb-4">
+             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-serif font-bold">{mode === 'edit' ? '編輯項目' : '新增項目'}</h3>
-                <button type="button" onClick={() => setShowModal(false)}><span className="text-2xl text-gray-400">×</span></button>
+                
+                {/* Close Button Only */}
+                <button 
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="p-2 bg-gray-50 text-gray-500 rounded-full hover:bg-gray-100 transition-colors"
+                  title="關閉"
+                >
+                  <XIcon className="w-5 h-5" />
+                </button>
              </div>
              
              <form onSubmit={handleSubmit} className="space-y-4">
@@ -519,7 +526,10 @@ export const CostView: React.FC<CostViewProps> = ({
                 {/* 2. Split Logic Section */}
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                    <div className="flex justify-between items-center mb-3">
-                      <label className="text-xs font-bold text-mag-gold uppercase tracking-widest">分帳方式</label>
+                      <label className="text-xs font-bold text-mag-gold uppercase tracking-widest flex items-center gap-2">
+                        分帳方式
+                        {splitType === 'manual' && <UsersIcon className="w-4 h-4" />}
+                      </label>
                       <select 
                         value={splitType}
                         onChange={(e) => setSplitType(e.target.value as any)}
@@ -567,10 +577,17 @@ export const CostView: React.FC<CostViewProps> = ({
                    />
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 flex gap-3">
+                    <button 
+                       type="button"
+                       onClick={() => setShowModal(false)}
+                       className="flex-1 bg-gray-100 text-gray-500 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-colors"
+                    >
+                       取消
+                    </button>
                     <button 
                        type="submit" disabled={isSubmitting}
-                       className="w-full bg-mag-gold text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-[#b08d48] transition-transform active:scale-95 disabled:opacity-50 text-lg"
+                       className="flex-[2] bg-mag-gold text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-[#b08d48] transition-transform active:scale-95 disabled:opacity-50 text-lg"
                     >
                        {isSubmitting ? '處理中...' : '確認儲存'}
                     </button>
