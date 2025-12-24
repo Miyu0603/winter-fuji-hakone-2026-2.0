@@ -1,5 +1,4 @@
 
-
 export interface LocationDetail {
   id: string;
   title: string;
@@ -92,8 +91,8 @@ export interface ExpenseRecord {
 export enum Tab {
   ITINERARY = 'Itinerary',
   PREP = 'Prep',
+  COST = 'Cost',
   PACKING = 'Packing',
-  INFO = 'Info',
   SHOPPING = 'Shopping',
-  COST = 'Cost'
+  INFO = 'Info'
 }

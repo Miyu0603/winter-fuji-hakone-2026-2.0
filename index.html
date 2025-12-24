@@ -1,16 +1,19 @@
 
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" class="no-scrollbar">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#F9F9F7" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#FFFFFF" />
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="冬富士之旅">
 
     <title>Winter Fuji & Hakone 2026</title>
     
+    <!-- Google Fonts: Noto Serif JP -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
+
     <!-- Favicon (Browser Tab) - Keep SVG -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23F9F9F7'/%3E%3Cpath d='M64 416h384L308 140c-15-28-56-28-71 0L64 416z' fill='%235D7C8F'/%3E%3Cpath d='M256 128l68 120-38 24-30-40-30 40-38-24 68-120z' fill='%23FFFFFF'/%3E%3C/svg%3E" />
     
@@ -35,8 +38,9 @@
               'mag-red': '#C63D0F',         // Warning/Highlight Text
             },
             fontFamily: {
-              sans: ['Helvetica Neue', 'Arial', 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', 'sans-serif'],
+              sans: ['-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue', 'Arial', 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', 'sans-serif'],
               serif: ['Georgia', 'Times New Roman', 'serif'],
+              noto: ['"Noto Serif JP"', 'serif'],
             },
             boxShadow: {
               'soft': '0 4px 20px rgba(0, 0, 0, 0.03)',
@@ -51,17 +55,37 @@
       }
     </script>
     <style>
-      /* Hide scrollbar for Chrome, Safari and Opera */
-      .no-scrollbar::-webkit-scrollbar {
-          display: none;
-      }
-      /* Hide scrollbar for IE, Edge and Firefox */
-      .no-scrollbar {
+      /* 全域隱藏捲軸，但保留捲動功能 */
+      html, body, .no-scrollbar {
           -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+          scrollbar-width: none;     /* Firefox */
+          overflow-x: hidden;        /* 防止左右晃動 */
       }
+
+      *::-webkit-scrollbar {
+          display: none !important; /* Chrome, Safari and Opera */
+      }
+
       body {
         -webkit-tap-highlight-color: transparent;
+        background-color: #F9F9F7;
+        /* 避免 iOS 橡皮筋效應影響版面 */
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+      }
+
+      /* 標頭背景改為純白 */
+      header {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        background-color: #FFFFFF;
+      }
+      
+      /* 確保內容寬度不會因為隱藏捲軸而產生偏移 */
+      #root {
+        width: 100%;
+        overflow-x: hidden;
       }
     </style>
   <script type="importmap">
@@ -74,8 +98,8 @@
 }
 </script>
 </head>
-  <body class="bg-mag-paper text-mag-black antialiased selection:bg-mag-gold selection:text-white">
-    <div id="root"></div>
+  <body class="bg-mag-paper text-mag-black antialiased selection:bg-mag-gold selection:text-white no-scrollbar">
+    <div id="root" class="no-scrollbar"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

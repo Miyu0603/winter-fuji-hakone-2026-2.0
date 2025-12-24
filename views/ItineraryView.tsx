@@ -1,54 +1,45 @@
 
 import React, { useState, useEffect } from 'react';
 import { ITINERARY } from '../constants';
-import { ItineraryEvent, DaySchedule } from '../types';
+import { ItineraryEvent } from '../types';
 import { BedIcon, MapIcon, ChevronRightIcon } from '../components/Icons';
 
+// Add missing interface definition
 interface ItineraryViewProps {
-  onNavigateToDetail: (locationId: string) => void;
+  onNavigateToDetail: (id: string) => void;
   selectedDateIdx: number;
-  setSelectedDateIdx: (idx: number) => void;
+  setSelectedDateIdx?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const TimelineEvent: React.FC<{ event: ItineraryEvent; isLast: boolean; onLocationClick: (id: string) => void }> = ({ event, isLast, onLocationClick }) => {
   return (
     <div className="flex relative group">
-      {/* Left: Time */}
       <div className="w-14 pt-1 flex-shrink-0 text-right pr-4">
         <span className="text-sm font-bold text-mag-black font-mono">{event.time}</span>
       </div>
-
-      {/* Middle: Line & Dot */}
       <div className="flex flex-col items-center mr-4 relative">
-        <div className={`w-2.5 h-2.5 rounded-full border-2 z-10 bg-mag-paper ${event.isHighlight ? 'border-mag-red' : 'border-gray-300'}`}></div>
-        {!isLast && <div className="w-[1px] bg-gray-200 flex-grow my-1"></div>}
+        {/* Changed to rounded-full for circular dots */}
+        <div className={`w-3 h-3 rounded-full border-2 z-10 bg-mag-paper ${event.isHighlight ? 'border-mag-red' : 'border-gray-300'}`}></div>
+        {!isLast && <div className="w-[1.5px] bg-gray-200 flex-grow my-1"></div>}
       </div>
-
-      {/* Right: Content Card */}
-      <div className="flex-1 pb-8">
+      <div className="flex-1 pb-6">
         <div 
           onClick={() => event.locationId && onLocationClick(event.locationId)}
-          className={`relative p-4 rounded-lg transition-all ${
+          className={`relative p-5 rounded-none transition-all ${
             event.isHighlight 
               ? 'bg-mag-gold-light border border-mag-gold/20' 
-              : 'bg-white border-gray-100 shadow-sm'
-          } ${event.locationId ? 'cursor-pointer hover:shadow-md active:scale-[0.99]' : ''}`}
+              : 'bg-white border-gray-100 shadow-soft'
+          } ${event.locationId ? 'cursor-pointer active:bg-gray-50' : ''}`}
         >
           <div className="flex justify-between items-start gap-2">
             <div>
-              <p className={`text-base leading-relaxed ${event.isHighlight ? 'text-mag-black font-bold' : 'text-mag-black font-medium'}`}>
+              <p className={`text-base leading-snug ${event.isHighlight ? 'text-mag-black font-black' : 'text-mag-black font-bold'}`}>
                 {event.description}
               </p>
-              {event.note && (
-                <p className="text-sm text-mag-gray mt-1">
-                  {event.note}
-                </p>
-              )}
+              {event.note && <p className="text-sm text-mag-gray mt-1.5 font-medium">{event.note}</p>}
             </div>
-            
-            {/* Clickable Arrow */}
             {event.locationId && (
-              <div className="text-mag-gold opacity-60 group-hover:opacity-100 transition-opacity">
+              <div className="text-mag-gold mt-0.5">
                 <ChevronRightIcon className="w-5 h-5" />
               </div>
             )}
@@ -59,117 +50,59 @@ const TimelineEvent: React.FC<{ event: ItineraryEvent; isLast: boolean; onLocati
   );
 };
 
-export const ItineraryView: React.FC<ItineraryViewProps> = ({ onNavigateToDetail, selectedDateIdx, setSelectedDateIdx }) => {
+export const ItineraryView: React.FC<ItineraryViewProps> = ({ onNavigateToDetail, selectedDateIdx }) => {
   const currentDay = ITINERARY[selectedDateIdx];
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 200);
-    };
-
+    const handleScroll = () => setShowScrollTop(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleScrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
-    <div className="pt-2">
-      {/* Horizontal Date Selector - Full Width */}
-      <div className="relative bg-mag-paper">
-        <div className="flex w-full justify-between px-4 py-2 gap-2">
-          {ITINERARY.map((day, idx) => {
-            const isSelected = idx === selectedDateIdx;
-            return (
-              <button
-                key={idx}
-                onClick={() => setSelectedDateIdx(idx)}
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1.5 rounded-xl transition-all duration-300 border ${
-                  isSelected 
-                    ? 'bg-mag-black text-white border-mag-black shadow-md transform scale-105' 
-                    : 'bg-white text-gray-400 border-gray-100'
-                }`}
-              >
-                <span className="text-[10px] font-bold tracking-wider uppercase mb-0.5 opacity-80">{day.date}</span>
-                <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-500'}`}>{day.weekday.replace('星期', '')}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    <div className="pt-0 animate-in fade-in duration-700">
+      <div className="pb-32">
+        {/* Changed font-thin back to font-bold for a thicker look as requested */}
+        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-mag-gold mb-1.5">
+          Daily Journey Log
+        </p>
 
-      <div className="px-5 pt-1 pb-32 animate-in fade-in slide-in-from-bottom-2 duration-500">
-        {/* Day Header Info - Reduced Spacing */}
-        <div className="mb-4 relative">
-          <div className="pr-10"> {/* Add padding right to avoid overlap with map icon */}
-             <h2 className="text-2xl font-serif font-bold text-mag-black mb-1">{currentDay.title}</h2>
-             
-             {/* Minimal Accommodation Style with Link */}
+        <div className="mb-8 relative">
+          <div className="pr-14">
+             <h2 className="text-[20px] font-serif font-black text-mag-black mb-1.5 tracking-tight leading-tight">{currentDay.title}</h2>
              {currentDay.accommodation && (
-               <div className="flex items-center gap-2 mt-2">
+               <div className="flex items-center gap-2 mt-2.5">
                  <BedIcon className="w-4 h-4 text-mag-gold" />
                  {currentDay.accommodationMapUrl ? (
-                   <a 
-                     href={currentDay.accommodationMapUrl} 
-                     target="_blank" 
-                     rel="noopener noreferrer"
-                     className="text-sm font-bold text-mag-gray hover:text-mag-red hover:underline transition-colors"
-                   >
+                   <a href={currentDay.accommodationMapUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-mag-gray active:text-mag-red">
                      {currentDay.accommodation}
                    </a>
                  ) : (
-                   <span className="text-sm font-bold text-mag-gray">{currentDay.accommodation}</span>
+                   <span className="text-sm font-black text-mag-gray">{currentDay.accommodation}</span>
                  )}
                </div>
              )}
           </div>
-
           {currentDay.mapUrl && (
-             <a href={currentDay.mapUrl} target="_blank" rel="noopener noreferrer" className="absolute right-0 top-1 p-2 bg-white rounded-full border border-gray-200 shadow-sm text-mag-gold hover:text-mag-black transition-colors z-10">
-                <MapIcon className="w-5 h-5" />
+             <a href={currentDay.mapUrl} target="_blank" rel="noopener noreferrer" className="absolute right-0 top-1 p-3 bg-white rounded-none border border-gray-100 shadow-float text-mag-gold active:scale-90 transition-transform">
+                <MapIcon className="w-6 h-6" />
              </a>
           )}
         </div>
 
-        {/* Timeline */}
         <div className="relative">
           {currentDay.events.map((event, idx) => (
-            <TimelineEvent 
-              key={idx} 
-              event={event} 
-              isLast={idx === currentDay.events.length - 1} 
-              onLocationClick={onNavigateToDetail}
-            />
+            <TimelineEvent key={idx} event={event} isLast={idx === currentDay.events.length - 1} onLocationClick={onNavigateToDetail} />
           ))}
         </div>
       </div>
 
-      {/* Fixed Back To Top Floating Action Button */}
-      <button 
-        onClick={handleScrollToTop}
-        className={`fixed bottom-6 right-5 z-40 p-3 bg-mag-black text-white rounded-full shadow-xl hover:bg-gray-800 transition-all duration-300 active:scale-90 flex items-center justify-center ${
-          showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
-        }`}
-        aria-label="返回頂部"
+      <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className={`fixed bottom-10 right-6 z-40 p-2.5 bg-mag-black text-white rounded-none shadow-2xl transition-all duration-300 active:scale-90 ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
       >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          width="20" 
-          height="20" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2.5" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        >
-          <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
       </button>
-
     </div>
   );
 };

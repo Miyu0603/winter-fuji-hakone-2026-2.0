@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { GOOGLE_SCRIPT_URL, GOOGLE_SHEET_URL } from '../constants';
-import { SheetIcon, PlusIcon, RefreshIcon, EditIcon, TrashIcon, XIcon, CalculatorIcon, UsersIcon } from '../components/Icons';
+import { SheetIcon, PlusIcon, RefreshIcon, EditIcon, TrashIcon, XIcon } from '../components/Icons';
 import { ExpenseRecord } from '../types';
 
 interface CostViewProps {
@@ -15,613 +15,305 @@ interface CostViewProps {
 export const CostView: React.FC<CostViewProps> = ({ 
   expenses, 
   isLoading, 
-  fetchError, 
   onRefresh,
   onAddSuccess
 }) => {
-  // --- STATE ---
   const [showModal, setShowModal] = useState(false);
   const [mode, setMode] = useState<'add' | 'edit'>('add');
-  
-  // Custom Confirmation Modal State
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-
-  // Form Data
   const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null);
+  
+  // Form State
   const [date, setDate] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState<'JPY' | 'TWD'>('JPY');
   const [item, setItem] = useState('');
   const [payer, setPayer] = useState<'想想' | '錢錢'>('想想');
   const [note, setNote] = useState('');
-
-  // Split Logic State
   const [splitType, setSplitType] = useState<'equal' | 'manual'>('equal');
-  const [manualXiangInput, setManualXiangInput] = useState(''); // Stores input for the active currency
-
-  // Processing States
+  const [manualXiangInput, setManualXiangInput] = useState('');
+  const [manualQianInput, setManualQianInput] = useState('');
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSettlement, setShowSettlement] = useState(false);
 
-  // --- CALCULATIONS ---
-  // 1. Total Spending
   const totalTWD = expenses.reduce((sum, r) => sum + r.amountTwd, 0);
   const totalJPY = expenses.reduce((sum, r) => sum + r.amountJpy, 0);
 
-  // 2. Settlement Calculation
   const settlement = useMemo(() => {
     let xiangPaidTwd = 0;
     let xiangPaidJpy = 0;
     let xiangShouldPayTwd = 0;
     let xiangShouldPayJpy = 0;
-
     expenses.forEach(r => {
-      // Who Paid
-      if (r.payer === '想想') {
-        xiangPaidTwd += r.amountTwd;
-        xiangPaidJpy += r.amountJpy;
-      }
-
-      // Who Should Pay (Split columns)
+      if (r.payer === '想想') { xiangPaidTwd += r.amountTwd; xiangPaidJpy += r.amountJpy; }
       xiangShouldPayTwd += r.splitXiangTwd || 0;
       xiangShouldPayJpy += r.splitXiangJpy || 0;
     });
-
-    return {
-      twd: xiangPaidTwd - xiangShouldPayTwd,
-      jpy: xiangPaidJpy - xiangShouldPayJpy
-    };
+    return { twd: xiangPaidTwd - xiangShouldPayTwd, jpy: xiangPaidJpy - xiangShouldPayJpy };
   }, [expenses]);
 
-  // --- FORMATTERS ---
-  const formatMoney = (val: number, curr: 'JPY' | 'TWD') => {
-    const symbol = curr === 'JPY' ? '¥' : '$';
-    return `${symbol}${Math.round(val).toLocaleString()}`;
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    if (!isNaN(date.getTime())) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}/${m}/${d}`;
+  const handleAmountChange = (val: string) => {
+    setAmount(val);
+    if (val) {
+      const total = Number(val) || 0;
+      setManualXiangInput(String(Math.round(total / 2)));
+      setManualQianInput(String(total - Math.round(total / 2)));
     }
-    return dateStr;
   };
 
-  // --- HANDLERS ---
+  const handleManualXiangChange = (val: string) => {
+    setManualXiangInput(val);
+    const total = Number(amount) || 0;
+    setManualQianInput(String(total - (Number(val) || 0)));
+  };
+
+  const handleManualQianChange = (val: string) => {
+    setManualQianInput(val);
+    const total = Number(amount) || 0;
+    setManualXiangInput(String(total - (Number(val) || 0)));
+  };
+
   const handleOpenAdd = () => {
-    setActionError(null);
-    setMode('add');
-    setEditingRowIndex(null);
-    
+    setMode('add'); setEditingRowIndex(null);
     const today = new Date();
-    const y = today.getFullYear();
-    const m = String(today.getMonth() + 1).padStart(2, '0');
-    const d = String(today.getDate()).padStart(2, '0');
-    setDate(`${y}-${m}-${d}`);
-    
-    setAmount(''); 
-    setItem(''); 
-    setPayer('想想'); 
-    setNote(''); 
-    setCurrency('JPY');
-    
-    // Default Split
-    setSplitType('equal');
-    setManualXiangInput('');
-    
+    setDate(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
+    setAmount(''); setItem(''); setPayer('想想'); setNote(''); setCurrency('JPY'); setSplitType('equal'); 
+    setManualXiangInput(''); setManualQianInput('');
     setShowModal(true);
   };
 
   const handleOpenEdit = (e: React.MouseEvent, record: ExpenseRecord) => {
-    e.stopPropagation();
-    setActionError(null);
-    setMode('edit');
-    setEditingRowIndex(record.rowIndex);
-    
-    const dateObj = new Date(record.date);
-    if (!isNaN(dateObj.getTime())) {
-       const y = dateObj.getFullYear();
-       const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-       const d = String(dateObj.getDate()).padStart(2, '0');
-       setDate(`${y}-${m}-${d}`);
-    } else {
-       setDate(''); 
-    }
-
-    setItem(record.item);
-    setPayer(record.payer);
-    setNote(record.note);
-    setSplitType(record.splitType || 'equal');
-    
-    // Set currency and amount based on what was saved
-    if (record.amountTwd > 0) {
-      setCurrency('TWD');
-      setAmount(String(record.amountTwd));
-      if (record.splitType === 'manual') {
-        setManualXiangInput(String(record.splitXiangTwd));
-      } else {
-        setManualXiangInput('');
-      }
-    } else {
-      setCurrency('JPY');
-      setAmount(String(record.amountJpy));
-      if (record.splitType === 'manual') {
-        setManualXiangInput(String(record.splitXiangJpy));
-      } else {
-        setManualXiangInput('');
-      }
-    }
-    
+    e.stopPropagation(); setMode('edit'); setEditingRowIndex(record.rowIndex);
+    const d = new Date(record.date);
+    setDate(!isNaN(d.getTime()) ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` : '');
+    setItem(record.item); setPayer(record.payer); setNote(record.note || ''); setSplitType(record.splitType || 'equal');
+    const amt = record.amountTwd > 0 ? record.amountTwd : record.amountJpy;
+    setAmount(String(amt));
+    setCurrency(record.amountTwd > 0 ? 'TWD' : 'JPY');
+    const xVal = record.amountTwd > 0 ? record.splitXiangTwd : record.splitXiangJpy;
+    const qVal = record.amountTwd > 0 ? record.splitQianTwd : record.splitQianJpy;
+    setManualXiangInput(String(xVal));
+    setManualQianInput(String(qVal));
     setShowModal(true);
-  };
-
-  const handleRequestDelete = (e: React.MouseEvent, rowIndex: number) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setActionError(null);
-
-    const numericRowIndex = Number(rowIndex);
-    if (!numericRowIndex || numericRowIndex <= 0 || isNaN(numericRowIndex)) {
-      setActionError(`無法刪除：資料缺少行號 (rowIndex: ${rowIndex})。請更新 GAS。`);
-      return;
-    }
-    
-    setDeleteConfirmId(numericRowIndex);
   };
 
   const handleConfirmDelete = async () => {
     if (deleteConfirmId === null) return;
     setIsDeleting(true);
-    setActionError(null);
-
     try {
-      const payload = { action: 'delete', rowIndex: deleteConfirmId };
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-        body: JSON.stringify(payload),
-      });
-      const result = await response.json();
-      
-      if (result.result === "success") {
-        setDeleteConfirmId(null);
-        onAddSuccess(); 
-      } else {
-        setActionError("刪除失敗：" + (result.error || "未知錯誤"));
-      }
-    } catch (error) {
-      console.error("Delete error:", error);
-      setActionError("刪除失敗，請檢查網路連線");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const calculateSplits = () => {
-    const total = Number(amount) || 0;
-    
-    let xiangAmt = 0;
-    let qianAmt = 0;
-
-    if (splitType === 'equal') {
-      xiangAmt = total / 2;
-      qianAmt = total / 2;
-    } else {
-      xiangAmt = Number(manualXiangInput) || 0;
-      qianAmt = total - xiangAmt;
-    }
-
-    const splits = {
-      splitXiangTwd: currency === 'TWD' ? xiangAmt : 0,
-      splitXiangJpy: currency === 'JPY' ? xiangAmt : 0,
-      splitQianTwd: currency === 'TWD' ? qianAmt : 0,
-      splitQianJpy: currency === 'JPY' ? qianAmt : 0,
-    };
-
-    return { xiangAmt, qianAmt, splits };
+      const res = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'delete', rowIndex: deleteConfirmId }) });
+      const result = await res.json();
+      if (result.result === "success") { setDeleteConfirmId(null); onAddSuccess(); }
+    } catch { console.error("刪除失敗"); } finally { setIsDeleting(false); }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setActionError(null);
-    if (!amount || !item) return;
-
+    e.preventDefault(); if (!amount || !item) return;
     setIsSubmitting(true);
-
-    try {
-      const dateObj = new Date(date);
-      const formattedDate = !isNaN(dateObj.getTime()) 
-          ? `${dateObj.getFullYear()}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}`
-          : date;
-
-      const { splits } = calculateSplits();
-
-      const payload = {
-        action: mode,
-        rowIndex: editingRowIndex,
-        date: formattedDate,
-        item: item.trim(),
-        payer: payer,
-        amountTwd: currency === 'TWD' ? Number(amount) : 0,
-        amountJpy: currency === 'JPY' ? Number(amount) : 0,
-        note: note.trim(),
-        splitType: splitType,
-        ...splits
-      };
-      
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-      });
-
-      setShowModal(false);
-      onAddSuccess();
-
-    } catch (error) {
-      console.error(error);
-      setActionError("提交失敗，請檢查網路");
-    } finally {
-      setIsSubmitting(false);
-    }
+    const total = Number(amount) || 0;
+    let xA = splitType === 'equal' ? total / 2 : (Number(manualXiangInput) || 0);
+    let qA = total - xA;
+    const payload = {
+      action: mode, rowIndex: editingRowIndex, date: date.replace(/-/g, '/'), item: item.trim(), payer,
+      amountTwd: currency === 'TWD' ? total : 0, amountJpy: currency === 'JPY' ? total : 0, note: note.trim(), splitType,
+      splitXiangTwd: currency === 'TWD' ? xA : 0, splitXiangJpy: currency === 'JPY' ? xA : 0,
+      splitQianTwd: currency === 'TWD' ? qA : 0, splitQianJpy: currency === 'JPY' ? qA : 0
+    };
+    try { await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) }); setShowModal(false); onAddSuccess(); }
+    catch { console.error("儲存失敗"); } finally { setIsSubmitting(false); }
   };
 
-  const { xiangAmt: currentXiangSplit, qianAmt: currentQianSplit } = calculateSplits();
+  const renderSettlementItem = (amount: number, currency: 'TWD' | 'JPY') => {
+    const absAmount = Math.abs(Math.round(amount));
+    if (absAmount === 0) {
+      return (
+        <div className="bg-gray-50 p-6 flex flex-col items-center justify-center">
+          <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{currency === 'TWD' ? '台幣 TWD' : '日幣 JPY'}</div>
+          <div className="text-xl font-bold text-gray-300">已結清</div>
+        </div>
+      );
+    }
+    const debtor = amount > 0 ? '錢錢' : '想想';
+    const creditor = amount > 0 ? '想想' : '錢錢';
+    const debtorColor = debtor === '想想' ? 'text-[#E91E63]' : 'text-[#2196F3]';
+    const creditorColor = creditor === '想想' ? 'text-[#E91E63]' : 'text-[#2196F3]';
+    return (
+      <div className="bg-gray-50 p-6 flex flex-col items-center">
+        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">{currency === 'TWD' ? '台幣 TWD' : '日幣 JPY'}</div>
+        <div className="flex items-center gap-3 mb-2">
+          <span className={`text-base font-black ${debtorColor}`}>{debtor}</span>
+          <span className="text-gray-300">➔</span>
+          <span className={`text-base font-black ${creditorColor}`}>{creditor}</span>
+        </div>
+        <div className="text-3xl font-mono font-bold text-mag-black">
+          {currency === 'TWD' ? '$' : '¥'}{absAmount.toLocaleString()}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="pb-32 pt-5 px-5 max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
-      
-      {/* HEADER ACTIONS */}
+    <div className="pb-32 pt-1 animate-in fade-in duration-700">
+      <div className="bg-white border border-gray-200 rounded-none overflow-hidden mb-8 shadow-sm">
+        <div className="px-5 py-3 flex justify-between items-center border-b border-gray-100">
+          <h2 className="text-xl font-noto font-bold text-mag-black tracking-tight">旅費總覽</h2>
+          <button onClick={onRefresh} className="text-gray-400 active:text-mag-black">
+            <RefreshIcon className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+          <div className="p-3 text-center">
+            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">JPY</div>
+            <div className="text-2xl font-bold text-mag-black font-mono">¥{totalJPY.toLocaleString()}</div>
+          </div>
+          <div className="p-3 text-center">
+            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">TWD</div>
+            <div className="text-2xl font-bold text-mag-black font-mono">${totalTWD.toLocaleString()}</div>
+          </div>
+        </div>
+        <button onClick={() => setShowSettlement(true)} className="w-full bg-mag-black text-white py-3.5 font-bold text-sm tracking-[0.2em] flex items-center justify-center gap-2 active:bg-gray-800">
+          結算精算 SETTLE
+        </button>
+      </div>
+
       <div className="flex justify-between items-end mb-6">
-        <div>
-          <h2 className="text-xs font-bold tracking-[0.2em] text-mag-gray uppercase mb-1 pl-1">EXPENSES</h2>
-          <h3 className="text-2xl font-serif font-bold text-mag-black">消費紀錄</h3>
-        </div>
-        <div className="flex gap-2">
-            <button 
-              onClick={() => setShowSettlement(true)} 
-              className="p-3 rounded-full shadow-sm active:scale-95 transition-all bg-white text-mag-gray border border-gray-200 hover:text-mag-black"
-              title="查看結算"
-            >
-                <CalculatorIcon className="w-6 h-6" />
-            </button>
-            <button onClick={() => { setActionError(null); onRefresh(); }} className="bg-white text-mag-gray border border-gray-200 p-3 rounded-full shadow-sm hover:text-mag-black active:scale-95 transition-all" title="重新整理">
-                <RefreshIcon className={`w-6 h-6 ${isLoading ? 'animate-spin' : ''}`} />
-            </button>
-            <button onClick={handleOpenAdd} className="bg-mag-gold text-white p-3 rounded-full shadow-lg hover:bg-[#b08d48] active:scale-95 transition-transform" title="記一筆">
-                <PlusIcon className="w-6 h-6" />
-            </button>
-        </div>
+        <h3 className="text-xl font-noto font-bold text-mag-black inline-block">支出明細</h3>
+        <button onClick={handleOpenAdd} className="bg-mag-black text-white p-2 shadow-md active:scale-95 transition-transform flex items-center justify-center">
+          <PlusIcon className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* SUMMARY */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-mag-black text-white p-5 rounded-xl shadow-float relative overflow-hidden">
-          <div className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Total JPY</div>
-          <div className="text-2xl font-mono font-bold">¥{totalJPY.toLocaleString()}</div>
-        </div>
-        <div className="bg-white text-mag-black border border-gray-100 p-5 rounded-xl shadow-sm relative overflow-hidden">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-mag-gray mb-2">Total TWD</div>
-          <div className="text-2xl font-mono font-bold text-mag-black">${totalTWD.toLocaleString()}</div>
-        </div>
-      </div>
-
-      {/* ERROR MESSAGE */}
-      {(fetchError || actionError) && (
-        <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl text-center text-sm font-bold mb-6 whitespace-pre-line leading-relaxed shadow-sm animate-in fade-in slide-in-from-top-2">
-          {fetchError || actionError}
-        </div>
-      )}
-
-      {/* EXPENSE LIST */}
       <div className="space-y-3">
-        {expenses.length === 0 && !isLoading ? (
-          <div className="text-center py-10 text-gray-400 border border-dashed rounded-xl">尚無紀錄</div>
-        ) : (
-          expenses.map((record) => {
-            const isXiang = record.payer === '想想';
-            
-            return (
-              <div key={record.rowIndex || Math.random()} 
-                className={`bg-white p-4 rounded-xl border border-gray-100 shadow-sm transition-all ${isDeleting && deleteConfirmId === record.rowIndex ? 'opacity-50' : ''}`}
-                onClick={(e) => handleOpenEdit(e, record)}
-              >
-                
-                {/* Row 1: Date | Payer | Split Status | Actions */}
-                <div className="flex justify-between items-start mb-2">
-                   {/* Left: Info */}
-                   <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono font-bold text-gray-400">
-                        {formatDate(record.date)}
-                      </span>
-                      
-                      <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${isXiang ? 'bg-pink-50 text-pink-500 border-pink-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                        {record.payer}
-                      </div>
-
-                      {record.splitType === 'manual' && (
-                        <div className="text-gray-400" title="手動分帳">
-                           <UsersIcon className="w-3.5 h-3.5" />
-                        </div>
-                      )}
-                   </div>
-
-                   {/* Right: Actions (Edit / Delete) */}
-                   <div className="flex items-center gap-1 -mr-1">
-                      <button 
-                        onClick={(e) => handleOpenEdit(e, record)}
-                        className="p-1.5 text-gray-300 hover:text-mag-gold transition-colors rounded-lg hover:bg-gray-50"
-                        title="編輯"
-                      >
-                         <EditIcon className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={(e) => handleRequestDelete(e, record.rowIndex)}
-                        className="p-1.5 text-gray-300 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
-                        title="刪除"
-                      >
-                         <TrashIcon className="w-4 h-4" />
-                      </button>
-                   </div>
-                </div>
-
-                {/* Row 2: Item Name & Amount */}
-                <div className="flex justify-between items-end gap-3">
-                   <div className="flex-1 min-w-0">
-                      <h4 className="text-base font-bold text-mag-black leading-tight break-words mb-0.5">
-                        {record.item}
-                      </h4>
-                      {/* Note displayed below item */}
-                      {record.note && (
-                        <p className="text-[10px] text-gray-400 truncate">
-                          {record.note}
-                        </p>
-                      )}
-                   </div>
-                   
-                   <div className="text-lg font-bold font-mono text-mag-black shrink-0 tracking-tight text-right">
-                      {record.amountJpy > 0 && <div>{formatMoney(record.amountJpy, 'JPY')}</div>}
-                      {record.amountTwd > 0 && <div>{formatMoney(record.amountTwd, 'TWD')}</div>}
-                   </div>
-                </div>
-
-              </div>
-            );
-          })
+        {expenses.length === 0 && !isLoading && (
+          <div className="text-center py-12 text-gray-400 font-bold border border-dashed border-gray-200">目前尚無支出明細</div>
         )}
+        {expenses.map((record) => (
+          <div key={record.rowIndex} className="bg-white p-4 rounded-none border border-gray-100 shadow-sm active:bg-gray-50 flex items-center gap-2 overflow-hidden" onClick={(e) => handleOpenEdit(e, record)}>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`shrink-0 px-2 py-0.5 text-[9px] font-bold text-white rounded-none ${record.payer === '想想' ? 'bg-[#E91E63]' : 'bg-[#2196F3]'}`}>{record.payer === '想想' ? '想想' : '錢錢'}</span>
+                <span className="text-base font-bold text-mag-black truncate">{record.item}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold text-gray-400">{record.date.split('T')[0].replace(/-/g, '/')}</span>
+                {record.splitType === 'manual' && <span className="bg-[#FDF6E3] text-[#B58900] text-[8px] px-1.5 py-0.5 font-bold border border-[#EEE8D5] shrink-0">手動分帳</span>}
+              </div>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+               <div className="text-lg font-bold text-mag-black font-mono whitespace-nowrap">{record.amountJpy > 0 ? `¥${record.amountJpy.toLocaleString()}` : `$${record.amountTwd.toLocaleString()}`}</div>
+               <div className="flex gap-1 shrink-0">
+                 <button onClick={(e) => handleOpenEdit(e, record)} className="p-1 text-gray-300"><EditIcon className="w-4 h-4" /></button>
+                 <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(record.rowIndex); }} className="p-1 text-gray-300 active:text-red-500"><TrashIcon className="w-4 h-4" /></button>
+               </div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="text-center mt-8">
-         <a href={GOOGLE_SHEET_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-mag-gray hover:text-mag-gold text-xs font-bold uppercase">
-           <SheetIcon className="w-4 h-4" /> Open Google Sheets
+      <div className="text-center mt-12 mb-8">
+         <a href={GOOGLE_SHEET_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest hover:text-mag-gold">
+           <SheetIcon className="w-4 h-4" /> open google sheet
          </a>
       </div>
 
-      {/* SETTLEMENT MODAL */}
       {showSettlement && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSettlement(false)} />
-          <div className="bg-gradient-to-br from-mag-black to-gray-800 text-white w-full max-w-sm rounded-2xl shadow-2xl z-10 p-6 animate-in zoom-in-95 duration-200">
-             
-             <div className="flex justify-between items-start mb-6">
-                <div>
-                   <h4 className="text-mag-gold font-bold text-sm tracking-widest uppercase mb-1">SETTLEMENT</h4>
-                   <h3 className="text-xl font-serif font-bold">結算面板</h3>
-                </div>
-                <button onClick={() => setShowSettlement(false)} className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-                   <XIcon className="w-5 h-5 text-white" />
-                </button>
+          <div className="bg-white text-mag-black w-full max-w-sm rounded-none p-8 z-10 animate-in zoom-in-95 border-t-8 border-mag-black">
+             <div className="flex justify-between items-center mb-8">
+                <h3 className="text-2xl font-bold tracking-tight">結算面板</h3>
+                <button onClick={() => setShowSettlement(false)} className="text-gray-300"><XIcon className="w-6 h-6" /></button>
              </div>
-
-             <div className="grid grid-cols-2 gap-8 relative mb-6">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1px] h-12 bg-white/20"></div>
-                
-                {/* TWD Balance */}
-                <div className="text-center">
-                  <div className="text-xs font-bold text-gray-400 mb-1">台幣結算</div>
-                  <div className={`text-2xl font-mono font-bold ${settlement.twd === 0 ? 'text-white' : settlement.twd > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                     {settlement.twd > 0 ? '+' : ''}{Math.round(settlement.twd).toLocaleString()}
-                  </div>
-                  <div className="text-[10px] text-gray-400 mt-1">
-                    {Math.abs(settlement.twd) === 0 ? '兩清' : settlement.twd > 0 ? '錢錢 給 想想' : '想想 給 錢錢'}
-                  </div>
-                </div>
-
-                {/* JPY Balance */}
-                <div className="text-center">
-                  <div className="text-xs font-bold text-gray-400 mb-1">日幣結算</div>
-                  <div className={`text-2xl font-mono font-bold ${settlement.jpy === 0 ? 'text-white' : settlement.jpy > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                     {settlement.jpy > 0 ? '+' : '¥'}{Math.round(settlement.jpy).toLocaleString()}
-                  </div>
-                   <div className="text-[10px] text-gray-400 mt-1">
-                    {Math.abs(settlement.jpy) === 0 ? '兩清' : settlement.jpy > 0 ? '錢錢 給 想想' : '想想 給 錢錢'}
-                  </div>
-                </div>
+             <div className="space-y-6">
+                {renderSettlementItem(settlement.twd, 'TWD')}
+                {renderSettlementItem(settlement.jpy, 'JPY')}
              </div>
-
-             <div className="bg-white/10 rounded-lg p-3 text-center">
-                <span className="text-[10px] text-gray-300">正數 = 錢錢欠想想 / 負數 = 想想欠錢錢</span>
-             </div>
+             <p className="mt-8 text-[11px] text-gray-400 font-bold text-center leading-relaxed">結算金額由雙方支付總額與應付份額計算所得。<br/>箭頭指向為應支付對象。</p>
           </div>
         </div>
       )}
 
-      {/* EDIT / ADD MODAL */}
       {showModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl z-10 p-6 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-serif font-bold">{mode === 'edit' ? '編輯項目' : '新增項目'}</h3>
-                
-                {/* Close Button Only */}
-                <button 
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="p-2 bg-gray-50 text-gray-500 rounded-full hover:bg-gray-100 transition-colors"
-                  title="關閉"
-                >
-                  <XIcon className="w-5 h-5" />
-                </button>
+          <div className="bg-white w-full max-w-sm rounded-none p-5 z-10 overflow-hidden shadow-2xl relative border-t-4 border-mag-black">
+             <div className="flex justify-between items-center mb-4">
+               <h3 className="text-xl font-serif font-bold tracking-tight text-mag-black">{mode === 'edit' ? '編輯消費' : '新增消費'}</h3>
+               <button onClick={() => setShowModal(false)} className="text-mag-gray p-1"><XIcon className="w-6 h-6" /></button>
              </div>
-             
-             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* 1. Basic Info */}
-                <div className="grid grid-cols-2 gap-4">
-                   <div>
-                      <label className="block text-xs font-bold text-gray-400 mb-1">日期</label>
-                      <input 
-                          type="date" required
-                          value={date} onChange={e => setDate(e.target.value)}
-                          className="w-full bg-gray-50 p-2.5 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-mag-gold/20 text-mag-black"
-                      />
-                   </div>
-                   <div>
-                      <label className="block text-xs font-bold text-gray-400 mb-1">付款者</label>
-                      <div className="flex gap-2">
-                          {(['想想', '錢錢'] as const).map(p => (
-                            <button type="button" key={p} onClick={() => setPayer(p)}
-                                className={`flex-1 py-2.5 text-xs font-bold rounded-lg border transition-all ${payer === p ? 'border-mag-gold bg-mag-gold/10 text-mag-gold' : 'border-gray-200 text-gray-400 hover:bg-gray-50'}`}>
-                                {p}
-                            </button>
-                          ))}
-                      </div>
-                   </div>
+             <form onSubmit={handleSubmit} className="space-y-2.5">
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label className="text-[9px] font-black uppercase text-mag-gray mb-1 block tracking-wide">日期 DATE</label>
+                    <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full bg-[#F7F7F7] p-2 rounded-none font-bold text-sm outline-none border-b border-gray-100" />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-[9px] font-black uppercase text-mag-gray mb-1 block tracking-wide">支付者 PAYER</label>
+                    <div className="flex border-[1.5px] border-mag-black overflow-hidden h-[36px]">
+                        <button type="button" onClick={() => setPayer('想想')} className={`flex-1 font-bold text-xs transition-all ${payer === '想想' ? 'bg-[#E91E63] text-white' : 'bg-white text-mag-black'}`}>想想</button>
+                        <button type="button" onClick={() => setPayer('錢錢')} className={`flex-1 font-bold text-xs transition-all ${payer === '錢錢' ? 'bg-[#2196F3] text-white' : 'bg-white text-mag-black'}`}>錢錢</button>
+                    </div>
+                  </div>
                 </div>
-
                 <div>
-                   <label className="block text-xs font-bold text-gray-400 mb-1">項目名稱</label>
-                   <input 
-                      type="text" placeholder="例如：晚餐" required
-                      value={item} onChange={e => setItem(e.target.value)}
-                      className="w-full bg-gray-50 p-3 rounded-lg font-bold text-base outline-none focus:ring-2 ring-mag-gold/20"
-                   />
+                  <label className="text-[9px] font-black uppercase text-mag-gray mb-1 block tracking-wide">內容 DESCRIPTION</label>
+                  <input type="text" placeholder="輸入消費內容" value={item} onChange={e => setItem(e.target.value)} className="w-full bg-[#F7F7F7] p-2.5 rounded-none font-bold text-base outline-none border-b border-gray-100" />
                 </div>
-
                 <div>
-                   <label className="block text-xs font-bold text-gray-400 mb-1">總金額</label>
-                   <div className="relative">
-                      <input 
-                         type="number" inputMode="decimal" placeholder="0" required 
-                         value={amount} onChange={e => setAmount(e.target.value)}
-                         className="w-full bg-gray-50 text-2xl font-serif font-bold p-3 pr-32 rounded-lg outline-none focus:ring-2 ring-mag-gold/20"
-                      />
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-200 p-1 rounded-lg grid grid-cols-2 gap-0.5 w-[100px]">
-                         {(['JPY', 'TWD'] as const).map(c => (
-                            <button type="button" key={c} onClick={() => setCurrency(c)}
-                               className={`py-1 text-[10px] font-bold rounded-md transition-all text-center ${currency === c ? 'bg-mag-black text-white shadow' : 'text-gray-500 hover:text-gray-700'}`}>
-                               {c}
-                            </button>
-                         ))}
-                      </div>
-                   </div>
+                  <label className="text-[9px] font-black uppercase text-mag-gray mb-1 block tracking-wide">金額 AMOUNT</label>
+                  <div className="flex bg-[#F7F7F7] items-center border-b border-gray-100 px-3 h-[56px] gap-2">
+                    <input type="number" placeholder="0" value={amount} onChange={e => handleAmountChange(e.target.value)} className="flex-1 min-w-0 bg-transparent py-2.5 rounded-none font-bold text-2xl outline-none" />
+                    <div className="flex shrink-0">
+                       <div className="flex bg-white shadow-sm border border-gray-200 overflow-hidden h-[30px] rounded-sm">
+                          <button type="button" onClick={() => setCurrency('JPY')} className={`px-2.5 flex items-center justify-center font-bold text-[10px] transition-colors ${currency === 'JPY' ? 'bg-mag-black text-white' : 'text-gray-400 hover:bg-gray-50'}`}>JPY</button>
+                          <button type="button" onClick={() => setCurrency('TWD')} className={`px-2.5 flex items-center justify-center font-bold text-[10px] transition-colors ${currency === 'TWD' ? 'bg-mag-black text-white' : 'text-gray-400 hover:bg-gray-50'}`}>TWD</button>
+                       </div>
+                    </div>
+                  </div>
                 </div>
-
-                {/* 2. Split Logic Section */}
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                   <div className="flex justify-between items-center mb-3">
-                      <label className="text-xs font-bold text-mag-gold uppercase tracking-widest flex items-center gap-2">
-                        分帳方式
-                        {splitType === 'manual' && <UsersIcon className="w-4 h-4" />}
-                      </label>
-                      <select 
-                        value={splitType}
-                        onChange={(e) => setSplitType(e.target.value as any)}
-                        className="bg-white border border-gray-200 text-xs font-bold text-mag-black py-1 px-2 rounded-lg outline-none"
-                      >
-                         <option value="equal">平均分攤</option>
-                         <option value="manual">手動分攤</option>
+                <div className="bg-[#F8F8F8] p-3 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[11px] font-bold text-mag-black">分帳模式</label>
+                      <select value={splitType} onChange={e => setSplitType(e.target.value as any)} className="appearance-none bg-white border border-mag-black py-1 px-3 text-[10px] font-bold rounded-none outline-none">
+                          <option value="manual">自定義金額</option>
+                          <option value="equal">平均分攤</option>
                       </select>
-                   </div>
-                   
-                   {splitType === 'equal' ? (
-                      <div className="flex justify-between text-sm font-medium text-gray-500 bg-white p-3 rounded-lg border border-dashed border-gray-200">
-                         <div>想想: {Math.round(currentXiangSplit)}</div>
-                         <div className="w-[1px] bg-gray-200 h-5"></div>
-                         <div>錢錢: {Math.round(currentQianSplit)}</div>
-                      </div>
-                   ) : (
-                      <div className="space-y-3">
-                         {/* Xiang Input */}
-                         <div>
-                            <label className="block text-[10px] font-bold text-gray-400 mb-1">想想 應付</label>
-                            <input 
-                               type="number" inputMode="decimal" placeholder="0"
-                               value={manualXiangInput} onChange={e => setManualXiangInput(e.target.value)}
-                               className="w-full bg-white border border-gray-200 p-2 rounded-lg font-bold text-sm outline-none focus:border-mag-gold"
-                            />
-                         </div>
-                         {/* Qian Calculated */}
-                         <div>
-                             <label className="block text-[10px] font-bold text-gray-400 mb-1">錢錢 應付 (自動計算)</label>
-                             <div className="w-full bg-gray-100 border border-transparent p-2 rounded-lg font-bold text-sm text-gray-500">
-                                {Math.round(currentQianSplit)}
-                             </div>
-                         </div>
-                      </div>
-                   )}
+                    </div>
+                    <div className="w-full h-[1px] border-t border-dashed border-gray-300"></div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-[8px] font-black text-[#E91E63] mb-0.5 block">想想負擔</label>
+                          <input type="number" disabled={splitType === 'equal'} value={splitType === 'equal' ? (Math.round(Number(amount)/2) || 0) : manualXiangInput} onChange={e => handleManualXiangChange(e.target.value)} className={`w-full bg-white p-2 text-base font-mono font-bold border border-gray-200 outline-none ${splitType === 'equal' ? 'opacity-60 bg-transparent' : 'focus:border-[#E91E63]'}`} />
+                        </div>
+                        <div>
+                          <label className="text-[8px] font-black text-[#2196F3] mb-0.5 block">錢錢負擔</label>
+                          <input type="number" disabled={splitType === 'equal'} value={splitType === 'equal' ? (Number(amount) - Math.round(Number(amount)/2) || 0) : manualQianInput} onChange={e => handleManualQianChange(e.target.value)} className={`w-full bg-white p-2 text-base font-mono font-bold border border-gray-200 outline-none ${splitType === 'equal' ? 'opacity-60 bg-transparent' : 'focus:border-[#2196F3]'}`} />
+                        </div>
+                    </div>
                 </div>
-
                 <div>
-                   <label className="block text-xs font-bold text-gray-400 mb-1">備註</label>
-                   <input 
-                      type="text" placeholder="補充說明..."
-                      value={note} onChange={e => setNote(e.target.value)}
-                      className="w-full bg-gray-50 p-3 rounded-lg text-sm font-medium outline-none focus:ring-2 ring-mag-gold/20"
-                   />
+                  <label className="text-[9px] font-black uppercase text-mag-gray mb-1 block tracking-wide">備註 NOTE</label>
+                  <input type="text" placeholder="選填項目細節" value={note} onChange={e => setNote(e.target.value)} className="w-full bg-[#F7F7F7] p-2 rounded-none font-bold outline-none border-b border-gray-100 text-xs" />
                 </div>
-
-                <div className="pt-2 flex gap-3">
-                    <button 
-                       type="button"
-                       onClick={() => setShowModal(false)}
-                       className="flex-1 bg-gray-100 text-gray-500 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-colors"
-                    >
-                       取消
-                    </button>
-                    <button 
-                       type="submit" disabled={isSubmitting}
-                       className="flex-[2] bg-mag-gold text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-[#b08d48] transition-transform active:scale-95 disabled:opacity-50 text-lg"
-                    >
-                       {isSubmitting ? '處理中...' : '確認儲存'}
-                    </button>
+                <div className="flex gap-3 pt-2">
+                  <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 border-[1.5px] border-gray-200 text-mag-black font-bold text-sm active:bg-gray-50 transition-all">取消</button>
+                  <button type="submit" disabled={isSubmitting} className="flex-1 py-3 bg-mag-black text-white font-bold text-sm active:bg-gray-800 transition-all">{isSubmitting ? '儲存中...' : '儲存項目'}</button>
                 </div>
              </form>
           </div>
         </div>
       )}
 
-      {/* DELETE CONFIRM MODAL */}
-      {deleteConfirmId !== null && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !isDeleting && setDeleteConfirmId(null)} />
-           <div className="bg-white w-full max-w-xs rounded-2xl shadow-2xl z-10 p-6 animate-in zoom-in-95 duration-200 text-center">
-              <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                 <TrashIcon className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-mag-black mb-2">確定要刪除嗎？</h3>
-              <p className="text-sm text-gray-500 mb-6">刪除後將無法復原此筆消費紀錄。</p>
-              
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-6">
+           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDeleteConfirmId(null)} />
+           <div className="bg-white p-8 rounded-none z-10 w-full max-w-xs text-center border-t-8 border-red-500">
+              <h3 className="text-xl font-bold mb-8 text-mag-black">確定要刪除此項目？</h3>
               <div className="flex gap-3">
-                 <button 
-                   onClick={() => setDeleteConfirmId(null)}
-                   disabled={isDeleting}
-                   className="flex-1 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 active:scale-95 disabled:opacity-50"
-                 >
-                   取消
-                 </button>
-                 <button 
-                   onClick={handleConfirmDelete}
-                   disabled={isDeleting}
-                   className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-                 >
-                   {isDeleting ? '刪除中...' : '確認刪除'}
-                 </button>
+                 <button onClick={() => setDeleteConfirmId(null)} className="flex-1 py-4 bg-gray-100 font-bold text-sm text-gray-500">取消</button>
+                 <button onClick={handleConfirmDelete} className="flex-1 py-4 bg-red-500 text-white font-bold text-sm active:bg-red-600">{isDeleting ? '...' : '確認刪除'}</button>
               </div>
            </div>
         </div>

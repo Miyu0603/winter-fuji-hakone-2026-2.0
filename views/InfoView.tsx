@@ -1,85 +1,81 @@
 
 import React from 'react';
 import { USEFUL_LINKS, EMERGENCY_CONTACTS } from '../constants';
-import { ExternalLinkIcon } from '../components/Icons';
 
 export const InfoView: React.FC = () => {
+  // Helper to map specific links to appropriate emojis
+  const getLinkEmoji = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes('japan web')) return '🛂';
+    if (t.includes('纜車')) return '🚠';
+    if (t.includes('預報')) return '🗻';
+    if (t.includes('巴士')) return '🚌';
+    if (t.includes('地圖')) return '🗺️';
+    if (t.includes('camera')) return '📸';
+    return '🔗';
+  };
+
   return (
-    <div className="pb-32 pt-5 px-5 max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="pb-32 pt-0 animate-in fade-in duration-700">
       
-      {/* Useful Links Section */}
-      <div className="mb-4">
-        <h2 className="text-xs font-bold tracking-[0.2em] text-mag-gray uppercase mb-1 pl-1">INFORMATION</h2>
-        <h3 className="text-2xl font-serif font-bold text-mag-black">實用連結</h3>
+      {/* Emergency Contacts Header */}
+      <div className="mb-6">
+        <h2 className="text-xs font-black tracking-[0.2em] text-mag-gray uppercase mb-1">EMERGENCY</h2>
+        <h3 className="text-[20px] font-serif font-black text-mag-black">緊急聯絡</h3>
       </div>
 
-      <div className="grid gap-2 mb-8">
+      {/* Emergency Contacts - White Background + Black Borders (Thicker) */}
+      <div className="bg-white border-2 border-mag-black rounded-none overflow-hidden mb-10">
+        <div className="flex border-b border-mag-black/10 divide-x divide-mag-black/10">
+          <a href={`tel:${EMERGENCY_CONTACTS[0].number}`} className="flex-1 p-4 text-center active:bg-gray-50">
+             <div className="text-sm font-black text-mag-black">{EMERGENCY_CONTACTS[0].title}</div>
+             <div className="text-3xl font-mono font-black text-mag-red">{EMERGENCY_CONTACTS[0].number}</div>
+          </a>
+          <a href={`tel:${EMERGENCY_CONTACTS[1].number}`} className="flex-1 p-4 text-center active:bg-gray-50">
+             <div className="text-sm font-black text-mag-black">{EMERGENCY_CONTACTS[1].title}</div>
+             <div className="text-3xl font-mono font-black text-mag-red">{EMERGENCY_CONTACTS[1].number}</div>
+          </a>
+        </div>
+        <a href={`tel:${EMERGENCY_CONTACTS[2].number}`} className="block p-4 active:bg-gray-50">
+           <div className="flex items-center justify-between">
+              <div>
+                  <div className="text-sm font-black text-mag-black">{EMERGENCY_CONTACTS[2].title}</div>
+                  <div className="text-[10px] text-mag-gray font-bold">{EMERGENCY_CONTACTS[2].note}</div>
+              </div>
+              <div className="text-xl font-mono font-black text-mag-red">{EMERGENCY_CONTACTS[2].number}</div>
+           </div>
+        </a>
+      </div>
+
+      {/* Useful Links Header */}
+      <div className="mb-6">
+        <h2 className="text-xs font-black tracking-[0.2em] text-mag-gray uppercase mb-1">INFORMATION</h2>
+        <h3 className="text-[20px] font-serif font-black text-mag-black">實用連結</h3>
+      </div>
+
+      {/* 2-Column Grid for Links - White Background + Black Borders (Thicker) */}
+      <div className="grid grid-cols-2 gap-3">
         {USEFUL_LINKS.map((link, idx) => (
           <a
             key={idx}
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group block bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-mag-gold/30 transition-all active:scale-[0.99]"
+            className="group flex flex-col items-center justify-center bg-white p-4 rounded-none border-2 border-mag-black hover:border-mag-gold transition-all active:bg-gray-50 text-center"
           >
-            <div className="flex justify-between items-center">
-              <div>
-                <h4 className="text-base font-bold text-mag-black group-hover:text-mag-gold transition-colors">{link.title}</h4>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-mag-gold group-hover:text-white transition-colors">
-                <ExternalLinkIcon className="w-4 h-4" />
-              </div>
+            <div className="mb-2 text-3xl group-hover:scale-110 transition-transform duration-300">
+              {getLinkEmoji(link.title)}
             </div>
+            <h4 className="text-[13px] font-bold text-mag-black leading-tight tracking-tight">
+              {link.title.split('(')[0].trim()}
+            </h4>
+            {link.title.includes('(') && (
+              <span className="text-[10px] text-mag-gray mt-1 font-medium">
+                {link.title.match(/\(([^)]+)\)/)?.[1]}
+              </span>
+            )}
           </a>
         ))}
-      </div>
-
-      {/* Emergency Contacts Section */}
-      <div className="mb-4">
-        <h2 className="text-xs font-bold tracking-[0.2em] text-mag-gray uppercase mb-1 pl-1">EMERGENCY & SUPPORT</h2>
-        <h3 className="text-2xl font-serif font-bold text-mag-black">緊急聯絡</h3>
-      </div>
-
-      <div className="bg-mag-red/5 border border-mag-red/20 rounded-2xl overflow-hidden shadow-sm">
-        {/* Top Row: Police & Fire (Split 50/50, No Icons, Compact) */}
-        <div className="flex border-b border-mag-red/10 divide-x divide-mag-red/10">
-          {/* Police */}
-          <a 
-            href={`tel:${EMERGENCY_CONTACTS[0].number}`} 
-            className="flex-1 p-3 hover:bg-mag-red/10 transition-colors text-center active:scale-[0.98] flex flex-col items-center justify-center"
-          >
-             <div className="text-lg font-bold text-mag-black">{EMERGENCY_CONTACTS[0].title}</div>
-             <div className="text-3xl font-mono font-bold text-mag-red tracking-tight">{EMERGENCY_CONTACTS[0].number}</div>
-          </a>
-
-          {/* Fire/Ambulance */}
-          <a 
-            href={`tel:${EMERGENCY_CONTACTS[1].number}`} 
-            className="flex-1 p-3 hover:bg-mag-red/10 transition-colors text-center active:scale-[0.98] flex flex-col items-center justify-center"
-          >
-             <div className="text-lg font-bold text-mag-black">{EMERGENCY_CONTACTS[1].title}</div>
-             <div className="text-3xl font-mono font-bold text-mag-red tracking-tight">{EMERGENCY_CONTACTS[1].number}</div>
-          </a>
-        </div>
-
-        {/* Bottom Row: JNTO (Full Width, Compact, No Icon, Centered Number) */}
-        <a 
-          href={`tel:${EMERGENCY_CONTACTS[2].number}`} 
-          className="block p-4 hover:bg-mag-red/10 transition-colors active:scale-[0.99]"
-        >
-           <div className="flex items-center justify-between gap-4">
-              <div className="flex flex-col justify-center min-w-0">
-                  <div className="text-sm font-bold text-mag-black truncate">{EMERGENCY_CONTACTS[2].title}</div>
-                  <div className="text-[10px] text-mag-gray font-medium truncate">
-                  {EMERGENCY_CONTACTS[2].note}
-                  </div>
-              </div>
-              
-              <div className="text-xl font-mono font-bold text-mag-red tracking-wide shrink-0">
-                {EMERGENCY_CONTACTS[2].number}
-              </div>
-           </div>
-        </a>
       </div>
 
     </div>

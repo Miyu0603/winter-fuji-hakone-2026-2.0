@@ -1,4 +1,3 @@
-
 import { DaySchedule, ChecklistItem, LocationDetail, UsefulLink, EmergencyContact } from './types';
 
 // Google Apps Script URL for Expenses
@@ -7,10 +6,10 @@ export const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzUfp
 export const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1GxlqNNOFl6M7GkjXaAmaFiLY90Ia_irHyerJ6_v0258/edit?gid=1261285869#gid=1261285869';
 
 export const PRE_TRIP_NOTES = [
-  "機場很冷要帶外套",
-  "注意手提、托運攜帶規定",
-  "購物前先找好有沒有折價券",
-  "護照每天都要隨身攜帶"
+  "河口湖 -5~8°C / 東京 3~13°C",
+  "採洋蔥式穿法，室內暖氣強",
+  "冬季氣候極機場、室內暖氣強，隨身攜帶護手霜",
+  "護照務必每日隨身攜帶"
 ];
 
 export const TODO_LIST: ChecklistItem[] = [
@@ -33,20 +32,22 @@ export const PACKING_CARRY_ON: ChecklistItem[] = [
   { id: 'co_9', text: '行動電源' },
   { id: 'co_10', text: '保溫杯' },
   { id: 'co_11', text: '牙線棒' },
+  { id: 'co_12', text: '護唇膏' },
+  { id: 'co_13', text: '墨鏡' },
+  { id: 'co_14', text: '防曬' },
 ];
 
 export const PACKING_CHECKED: ChecklistItem[] = [
-  { id: 'ch_1', text: '護唇膏、雨傘、面紙' },
+  { id: 'ch_1', text: '雨傘、面紙' },
   { id: 'ch_2', text: '口罩、眼藥水' },
   { id: 'ch_3', text: '手機掛繩' },
   { id: 'ch_4', text: '浴巾、毛巾' },
-  { id: 'ch_5', text: '破魔矢 (回程)' },
+  { id: 'ch_5', text: '破魔矢' },
   { id: 'ch_6', text: '錢包 (台幣)' },
   { id: 'ch_7', text: '換洗衣物 (衣褲鞋襪)' },
   { id: 'ch_8', text: '行李袋 (備用)' },
   { id: 'ch_9', text: '保養品 (卸妝、洗面乳)' },
   { id: 'ch_10', text: '化妝品 (底妝、眼線、口紅)' },
-  { id: 'ch_11', text: '防曬噴霧' },
   { id: 'ch_12', text: '護髮、定型液' },
   { id: 'ch_13', text: '牙刷牙膏' },
   { id: 'ch_14', text: '折疊衣架' },
@@ -64,6 +65,7 @@ export const USEFUL_LINKS: UsefulLink[] = [
   { title: '逆富士預報', url: 'https://fujitiensan.com/kawaguchiko-sakasafuji/' },
   { title: '富士地區巴士', url: 'https://bus.fujikyu.co.jp/rosen/fujigoko' },
   { title: '御殿場 Outlet 地圖', url: 'https://platinumaps.jp/d/premiumoutlets-gotemba?culture=en&floor=2F' },
+  { title: '御殿場 Outlet 交通', url: 'https://www.premiumoutlets.co.jp/cht/gotemba/access/' },
   { title: '河口湖 Live Camera', url: 'https://www.town.fujikawaguchiko.lg.jp/info/info.php?if_id=7' },
 ];
 
@@ -90,48 +92,7 @@ export const LOCATION_DETAILS: Record<string, LocationDetail> = {
     address: '静岡県御殿場市東田中1029-1',
     mapUrl: 'https://www.google.com/maps/search/?api=1&query=Super+Hotel+Gotemba+2',
     websiteUrl: 'https://www.superhotel.co.jp/s_hotels/gotemba2/',
-    carNaviPhone: '0550-84-9000',
-    reservation: {
-      id: '3124-5424-9496',
-      sections: [
-        {
-          title: '預訂人資料',
-          items: [
-            { label: '預訂者', value: 'Shi Yi Chang' },
-            { label: '預訂地址', value: '201003 台灣 2 F., No. 50, Huayuan 3rd St., Xinyi Dist., Keelung City', isFullWidth: true },
-          ]
-        },
-        {
-          title: '住宿者資訊',
-          items: [
-            { label: '代表人', value: 'Shi Yi Chang' },
-            { label: '人數', value: '2人 (1男 1女)' },
-            { label: '電話', value: '+886953735805' },
-            { label: 'Email', value: 'sandy060321@gmail.com' },
-          ]
-        },
-        {
-          title: '預訂資料',
-          items: [
-            { label: '方案', value: '最優惠價格方案', isFullWidth: true },
-            { label: '入住', value: '2026-03-01' },
-            { label: '退房', value: '2026-03-02' },
-            { label: '入住時間', value: '15:00 ～ 24:00' },
-            { label: '退房時間', value: '10:00' },
-            { label: '抵達時間', value: '21:00' },
-            { label: '房型', value: '【禁菸】富士山觀景房', isFullWidth: true },
-            { label: '付款方式', value: '現場支付' },
-          ]
-        },
-        {
-          title: '費用明細',
-          items: [
-            { label: '費用合計', value: '10,440 JPY (含稅)' },
-            { label: '取消政策', value: '2/28前免費；入住當日/未到全額 (100%)', isFullWidth: true },
-          ]
-        }
-      ]
-    }
+    carNaviPhone: '0550-84-9000'
   },
   'skyliner': {
     id: 'skyliner',
@@ -142,32 +103,45 @@ export const LOCATION_DETAILS: Record<string, LocationDetail> = {
   'nippon_rentacar': {
     id: 'nippon_rentacar',
     title: '租車預約 (ニッポンレンタカー)',
-    description: `【ご予約番号】
-予約番号  ：119030360
-予約パスワード：7992ff48
-
-【お客様情報】
-　　お名前：Chang Shi Yi
-　　フリガナ：チョウ　シギ
-　　メールアドレス：sandy060321@gmail.com
-　　電話番号：0953735805 ※メールにてご連絡できない場合利用します
-　　乗車人数：2
-
-【ご予約内容】
-　　貸出日時：2026年02月28日 (土) 09:30
-　　返却日時：2026年02月28日 (土) 19:00
-
-　　レンタカー会社名：ニッポンレンタカー
-　　車種：禁煙車 フィット同等クラス（SS）
-　　禁煙／喫煙の希望：禁煙車を希望する
-
-　　出発店舗：河口湖駅前営業所
-　　出発店舗住所：山梨県南都留郡富士河口湖町船津3647-1
-　　ご連絡先：050-1712-2693
-　　店舗情報：https://www.tabirai.net/car/yamanashi/company/nippon/branch/?PID=4573`,
+    description: '於河口湖站前取車自駕，探索富士五湖地區最便利的方式。請務必攜帶台灣駕照正本與日文譯本。',
     address: '山梨県南都留郡富士河口湖町船津3647-1',
+    mapUrl: 'https://maps.app.goo.gl/hZUyWUYCn3tZPokXA',
     carNaviPhone: '050-1712-2693',
-    websiteUrl: 'https://www.tabirai.net/car/yamanashi/company/nippon/branch/?PID=4573'
+    websiteUrl: 'https://www.tabirai.net/car/yamanashi/company/nippon/branch/?PID=4573',
+    reservation: {
+      id: '119030360',
+      sections: [
+        {
+          title: '憑證代碼 ACCESS CODE',
+          items: [
+            { label: '預約編號 NO.', value: '119030360' },
+            { label: '查詢密碼 PW.', value: '7992ff48' },
+          ]
+        },
+        {
+          title: '時程安排 SCHEDULE',
+          items: [
+            { label: '取車時間', value: '2/28 (六) 09:30', isFullWidth: true },
+            { label: '還車時間', value: '2/28 (六) 19:00', isFullWidth: true },
+          ]
+        },
+        {
+          title: '車輛配置 VEHICLE',
+          items: [
+            { label: '車型等級', value: 'SS級 (Fit 同等款)' },
+            { label: '基本配備', value: '禁菸 / ETC 搭載' },
+            { label: '駕駛人', value: 'Chang Shi Yi', isFullWidth: true },
+          ]
+        },
+        {
+          title: '費用總計 TOTAL',
+          items: [
+            { label: '估計費用', value: '約 8,250 JPY' },
+            { label: '支付狀態', value: '門市現場支付' },
+          ]
+        }
+      ]
+    }
   },
   'golden_torii': {
     id: 'golden_torii',
@@ -286,6 +260,38 @@ export const LOCATION_DETAILS: Record<string, LocationDetail> = {
     mapUrl: 'https://www.google.com/maps/search/?api=1&query=Nakamise-dori+Street',
     websiteUrl: 'https://www.facebook.com/AsakusaNakamise/?ref=embed_page#'
   },
+  'super_hotel_asakusa': {
+    id: 'super_hotel_asakusa',
+    title: '淺草超級飯店 (Super Hotel)',
+    description: '位於淺草寺附近的連鎖商務飯店，地理位置極佳，適合早晨參拜淺草寺與探索下町文化。',
+    address: '東京都台東区浅草2-33-1',
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=Super+Hotel+Asakusa',
+    websiteUrl: 'https://www.superhotel.co.jp/s_hotels/asakusa/'
+  },
+  'yonekyu_sukiyaki': {
+    id: 'yonekyu_sukiyaki',
+    title: '壽喜燒 米久本店',
+    description: '明治時代開業的百年老店，以優質的近江牛壽喜燒聞名。店內裝潢古色古香，入場時會鳴鼓歡迎。建議提早排隊。',
+    address: '東京都台東区浅草2-17-10',
+    mapUrl: 'https://maps.app.goo.gl/3A5jF3fS3hbSNnVn7',
+    websiteUrl: 'https://tabelog.com/tokyo/A1311/A131102/13003667/'
+  },
+  'kappabashi_street': {
+    id: 'kappabashi_street',
+    title: '合羽橋道具街',
+    description: '日本最大的餐飲廚具商業街，長約800公尺，有超過170家店舖販售刀具、餐具、食品模型及各式專業廚房設備。',
+    address: '東京都台東区松が谷',
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=Kappabashi+Dougu+Street',
+    websiteUrl: 'https://www.kappabashi.or.jp/'
+  },
+  'february_kitchen': {
+    id: 'february_kitchen',
+    title: 'FEBRUARY KITCHEN',
+    description: '位於淺草的人氣咖啡廳，以其著名的焦糖布丁與豐盛的早餐拼盤聞名。店內裝修走復古風格，氛圍溫馨，是享受悠閒早晨的首選。',
+    address: '東京都台東区浅草2-29-6',
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=FEBRUARY+KITCHEN+Asakusa',
+    websiteUrl: 'https://www.instagram.com/february_kitchen/'
+  },
   'bus_to_museum': {
     id: 'bus_to_museum',
     title: '巴士轉乘資訊 (御殿場 → 彫刻の森)',
@@ -328,7 +334,7 @@ export const ITINERARY: DaySchedule[] = [
     mapUrl: 'https://www.google.com/maps/dir/Narita+Airport/Ueno+Station/Tokyo+Station/Kawaguchiko+Station/Hotel+New+Century',
     events: [
       { time: '10:35', description: '抵達成田機場並辦理入境手續', note: '預計 1 小時' },
-      { time: '11:39', description: '搭乘 Skyliner 前往上野', note: '下一班 11:59', locationId: 'skyliner' },
+      { time: '11:39', description: '搭乘 Skyliner 前往上野', note: '下一班 11:59', locationId: 'skyliner', isHighlight: true },
       { time: '12:30', description: '抵達上野站，轉乘 JR 山手線至東京車站' },
       { time: '13:00', description: '抵達東京車站，購買午餐' },
       { time: '14:10', description: '搭乘高速巴士前往河口湖站', isHighlight: true, note: '預計 16:10 抵達' },
@@ -346,17 +352,16 @@ export const ITINERARY: DaySchedule[] = [
     accommodationMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hotel+New+Century+Kawaguchiko',
     mapUrl: 'https://www.google.com/maps/dir/Hotel+New+Century/Nippon+Rent-A-Car/Oshino+Hakkai/Yamanakako/Chureito+Pagoda/Oishi+Park/Saiko+Iyashi-no-Sato+Nenba/Nakanokura+Pass/Hotel+New+Century',
     events: [
-      { time: '06:30', description: '於飯店房間內或湖畔看逆富士', isHighlight: true },
+      { time: '06:30', description: '於飯店房間內或湖畔看逆富士', note: '早起限定美景' },
       { time: '08:30', description: '享用飯店早餐' },
-      { time: '10:00', description: '前往河口湖站租車', note: 'ニッポンレンタカー (點擊查看預約)', locationId: 'nippon_rentacar' },
-      { time: '10:20', description: '忍野八海', note: '停留 40 分鐘', locationId: 'oshino_hakkai' },
-      { time: '11:20', description: '山中湖 + 咖啡廳/點心', locationId: 'yamanakako' },
-      { time: '12:50', description: '新倉山淺間公園', isHighlight: true, note: '停留 1 小時', locationId: 'chureito_pagoda' },
-      { time: '14:10', description: '河口湖大石公園', note: '停留 40 分鐘', locationId: 'oishi_park' },
-      { time: '15:30', description: '西湖療愈之里根場', note: '停留 1 小時', locationId: 'iyashi_no_sato' },
-      { time: '16:10', description: '中ノ倉峠', locationId: 'nakanokura_pass' },
-      { time: '19:00', description: '回河口湖站還車' },
-      { time: '晚上', description: '回飯店休息' }
+      { time: '09:30', description: '前往河口湖站租車', note: 'ニッポンレンタカー', locationId: 'nippon_rentacar' },
+      { time: '09:50', description: '忍野八海', note: '停留 40 分鐘', locationId: 'oshino_hakkai' },
+      { time: '10:50', description: '山中湖 + 咖啡廳/點心', locationId: 'yamanakako' },
+      { time: '12:20', description: '新倉山淺間公園', note: '停留 1 小時', locationId: 'chureito_pagoda' },
+      { time: '14:00', description: '大石公園 (河口湖北岸)', note: '停留 30 分鐘 (若視野不佳則捨棄此景點)', locationId: 'oishi_park' },
+      { time: '15:00', description: '西湖療愈之里根場', note: '停留 1 小時', locationId: 'iyashi_no_sato' },
+      { time: '16:30', description: '本栖湖 中ノ倉峠 (千圓鈔風景)', note: '最晚停留至17:40（預計日落時間）', locationId: 'nakanokura_pass' },
+      { time: '18:00', description: '返回河口湖站還車（最晚還車時間 19:00）' },
     ]
   },
   {
@@ -365,53 +370,62 @@ export const ITINERARY: DaySchedule[] = [
     title: '箱根經典環線一日遊',
     accommodation: '御殿場2號超級飯店',
     accommodationMapUrl: 'https://www.google.com/maps/search/?api=1&query=Super+Hotel+Gotemba+2',
-    mapUrl: 'https://www.google.com/maps/dir/Hotel+New+Century/Kawaguchiko+Station/Gotemba+Station/The+Hakone+Open-Air+Museum/Gora+Station/Owakudani/Togendai+Station/Hakone+Shrine/Gotemba+Station/Super+Hotel+Gotemba+2',
+    mapUrl: 'https://www.google.com/maps/dir/Hotel+New+Century/Gotemba+Station/Hakone+Open-Air+Museum/Owakudani/Hakone+Pirate+Ship/Hakone+Shrine/Super+Hotel+Gotemba+2',
     events: [
-      { time: '08:00', description: '早餐並退房，前往河口湖站' },
-      { time: '09:00', description: '搭乘富士急巴士前往御殿場站', isHighlight: true },
-      { time: '10:30', description: '抵達御殿場站，寄放行李' },
-      { time: '10:50', description: '搭巴士至箱根雕刻森林美術館', locationId: 'bus_to_museum' },
-      { time: '11:36', description: '參觀箱根雕刻森林美術館', note: '1.5 - 2 小時', locationId: 'hakone_museum' },
-      { time: '13:30', description: '前往強羅站' },
-      { time: '13:45', description: '搭乘登山纜車至早雲山，換空中纜車' },
-      { time: '14:20', description: '大涌谷短暫停留', locationId: 'owakudani' },
-      { time: '15:00', description: '抵達桃源台港，乘坐海賊觀光船', locationId: 'pirate_ship' },
-      { time: '15:45', description: '抵達元箱根港，步行至箱根神社', isHighlight: true, locationId: 'hakone_shrine' },
-      { time: '17:00', description: '搭乘巴士返回御殿場站' },
-      { time: '18:00', description: '領取行李' },
-      { time: '18:30', description: '步行至御殿場2號超級飯店 Check-in', locationId: 'super_hotel_gotemba' }
+      { time: '07:30', description: '享用飯店早餐並辦理退房', note: '新世紀飯店' },
+      { time: '08:30', description: '前往河口湖站', note: '詢問飯店接駁' },
+      { time: '09:00', description: '搭乘富士急巴士前往御殿場站', isHighlight: true, note: '預計 10:30 抵達' },
+      { time: '10:30', description: '抵達御殿場站', note: '於箱根乙女口確認寄放行李' },
+      { time: '10:50', description: '搭乘巴士至箱根雕刻森林美術館', locationId: 'bus_to_museum' },
+      { time: '11:36', description: '箱根雕刻森林美術館', locationId: 'hakone_museum', note: '預計停留 1.5 - 2 小時' },
+      { time: '13:30', description: '搭車至強羅站', note: '準備換乘纜車' },
+      { time: '13:45', description: '搭乘箱根登山纜車至早雲山', note: '纜車段落開始' },
+      { time: '14:00', description: '換乘箱根空中纜車', note: '前往大涌谷' },
+      { time: '14:20', description: '大涌谷短暫停留', locationId: 'owakudani', note: '最多停留 20 分鐘' },
+      { time: '15:00', description: '抵達桃源台港 乘坐箱根海賊觀光船', locationId: 'pirate_ship' },
+      { time: '15:45', description: '抵達元箱根港', note: '下船前往景點' },
+      { time: '16:00', description: '參拜箱根神社', locationId: 'hakone_shrine' },
+      { time: '17:00', description: '搭乘巴士返回御殿場站', note: '預計 18:00 抵達' },
+      { time: '18:00', description: '抵達御殿場站 領取行李' },
+      { time: '18:30', description: '御殿場2號超級飯店 Check-in', locationId: 'super_hotel_gotemba' },
+      { time: '19:30', description: '飯店附近晚餐', note: '結束精實的一天' },
     ]
   },
   {
     date: '3/02',
     weekday: '星期日',
-    title: '御殿場 Outlet → 東京淺草',
+    title: '御殿場 Outlet → 淺草',
     accommodation: '淺草超級飯店',
     accommodationMapUrl: 'https://www.google.com/maps/search/?api=1&query=Super+Hotel+Asakusa',
-    mapUrl: 'https://www.google.com/maps/dir/Super+Hotel+Gotemba+2/Gotemba+Premium+Outlets/Tokyo+Station/Asakusa/Super+Hotel+Asakusa',
+    mapUrl: 'https://www.google.com/maps/dir/Super+Hotel+Gotemba+2/Gotemba+Premium+Outlets/Asakusa+Station/Senso-ji/Super+Hotel+Asakusa',
     events: [
       { time: '09:00', description: '享用早餐，辦理退房' },
-      { time: '10:00', description: '前往御殿場 Premium Outlet 購物', locationId: 'gotemba_outlet' },
-      { time: '13:00', description: 'Outlet 或周邊享用午餐' },
-      { time: '下午', description: '繼續 Outlet 購物 (預計停留 3-5 小時)' },
-      { time: '17:00', description: '搭乘高速巴士返回東京' },
-      { time: '19:30', description: '抵達東京，轉乘地鐵至淺草 Check-in' },
-      { time: '晚上', description: '淺草飯店附近晚餐' }
+      { time: '10:00', description: '御殿場 Outlet 購物', locationId: 'gotemba_outlet' },
+      { time: '12:00', description: '御殿場 Outlet さわやか漢堡排', note: '漢堡排名店' },
+      { time: '13:00', description: 'Outlet 繼續購物' },
+      { time: '16:30', description: '搭乘高速巴士返回東京', isHighlight: true, note: '預計 18:10 抵達東京' },
+      { time: '18:10', description: '抵達東京站，轉車前往淺草' },
+      { time: '18:40', description: '淺草超級飯店辦理入住', locationId: 'super_hotel_asakusa' },
+      { time: '19:00', description: '淺草周邊逛街', note: 'GU、UQ、唐吉訶德' },
     ]
   },
   {
     date: '3/03',
     weekday: '星期一',
-    title: '淺草散策 → 桃園回程',
-    accommodation: '溫暖的家',
-    mapUrl: 'https://www.google.com/maps/dir/Super+Hotel+Asakusa/Senso-ji/Nakamise-dori/Kappabashi/Sumida+Park/Ueno+Station/Narita+Airport',
+    title: '淺草散策 → 歸國',
+    mapUrl: 'https://www.google.com/maps/dir/Super+Hotel+Asakusa/Senso-ji/Yonekyu+Sukiyaki/Kappabashi+Dougu+Street/Ueno+Station/Narita+Airport',
     events: [
-      { time: '09:00', description: '淺草寺參拜，逛仲見世商店街', locationId: 'asakusa_sensoji' },
-      { time: '11:00', description: '逛淺草周邊 (合羽橋道具街或隅田公園)', locationId: 'nakamise' },
-      { time: '12:30', description: '淺草周邊午餐' },
-      { time: '14:00', description: '搭地鐵前往上野站' },
-      { time: '15:00', description: '抵達上野站，辦理登機，搭 Skyliner 至成田' },
-      { time: '20:25', description: '登機回桃園 (IT203)', note: '23:30 抵達' }
+      { time: '09:00', description: '退房，行李先寄放飯店', locationId: 'super_hotel_asakusa' },
+      { time: '09:30', description: '早餐 - FEBRUARY KITCHEN', locationId: 'february_kitchen' },
+      { time: '10:00', description: '淺草寺參拜', locationId: 'asakusa_sensoji' },
+      { time: '11:00', description: '仲見世商店街散策', locationId: 'nakamise' },
+      { time: '12:00', description: '午餐：壽喜燒 米久本店', note: '提前排隊，百年老店', locationId: 'yonekyu_sukiyaki' },
+      { time: '13:30', description: '合羽橋道具街周邊散步', locationId: 'kappabashi_street' },
+      { time: '16:30', description: '回飯店取行李', note: '最晚離開淺草時間 16:45' },
+      { time: '17:00', description: '抵達上野站' },
+      { time: '17:20', description: '搭乘 Skyliner 前往成田機場 (NRT)', isHighlight: true, note: '預計 18:03 抵達' },
+      { time: '18:03', description: '抵達成田機場辦理登機' },
+      { time: '20:25', description: '搭機返回桃園', isHighlight: true, note: '23:30 抵達台灣' },
     ]
   }
 ];
