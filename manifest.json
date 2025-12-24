@@ -1,9 +1,8 @@
-
 {
   "name": "Winter Fuji & Hakone 2026",
   "short_name": "冬富士之旅",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/winter-fuji-hakone-2026-2.0/",
+  "scope": "/winter-fuji-hakone-2026-2.0/",
   "display": "standalone",
   "background_color": "#F9F9F7",
   "theme_color": "#F9F9F7",
