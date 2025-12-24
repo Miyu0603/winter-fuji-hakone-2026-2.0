@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { PRE_TRIP_NOTES } from '../constants';
 import { ChecklistItem } from '../types';
@@ -64,21 +63,21 @@ export const PrepView: React.FC<PrepViewProps> = ({ checkedItems, toggleItem, li
   return (
     <div className="pb-32 pt-2 animate-in fade-in duration-500">
       
-      {/* Travel Notes Section */}
+      {/* Travel Notes Section - Matched font size to Checklist (text-sm) */}
       <div className="mb-8 bg-white border border-gray-100 shadow-soft p-5 relative overflow-hidden">
         <div className="flex items-center gap-2 mb-4 border-b border-gray-50 pb-3">
            <div className="w-1 h-4 bg-mag-gold"></div>
            <h3 className="text-lg font-noto font-bold text-mag-black leading-none">旅途叮嚀</h3>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {PRE_TRIP_NOTES.map((note, idx) => (
-            <div key={idx} className="flex gap-2 items-start">
-               <span className="text-[14px] font-serif font-black text-mag-gold shrink-0 leading-snug">
-                 {idx + 1}.
+            <div key={idx} className="flex gap-3 items-baseline">
+               <span className="text-[12px] font-mono font-black text-mag-gold shrink-0 leading-none">
+                 {(idx + 1).toString().padStart(2, '0')}
                </span>
                <div className="flex-1">
-                  <p className="text-[14px] font-medium text-mag-black leading-snug tracking-wider">
+                  <p className="text-sm font-medium text-mag-black leading-relaxed tracking-tight">
                     {note}
                   </p>
                </div>
@@ -87,10 +86,10 @@ export const PrepView: React.FC<PrepViewProps> = ({ checkedItems, toggleItem, li
         </div>
       </div>
 
-      {/* Section 2: Checklist */}
+      {/* Section 2: Checklist - Renamed Title to 待辦事項 */}
       <div className="pt-2">
         <div className="flex items-center justify-between mb-4 px-1">
-          <h2 className="text-[10px] font-black tracking-[0.2em] text-mag-gray uppercase">To-do List / 待辦</h2>
+          <h2 className="text-[10px] font-black tracking-[0.2em] text-mag-gray uppercase">待辦事項</h2>
           <button 
             onClick={handleOpenAdd}
             className="p-2 bg-mag-black text-white shadow-md active:scale-95 transition-transform"

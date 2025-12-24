@@ -1,14 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { ITINERARY } from '../constants';
 import { ItineraryEvent } from '../types';
 import { BedIcon, MapIcon, ChevronRightIcon } from '../components/Icons';
 
-// Add missing interface definition
 interface ItineraryViewProps {
   onNavigateToDetail: (id: string) => void;
   selectedDateIdx: number;
-  setSelectedDateIdx?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const TimelineEvent: React.FC<{ event: ItineraryEvent; isLast: boolean; onLocationClick: (id: string) => void }> = ({ event, isLast, onLocationClick }) => {
@@ -18,7 +15,6 @@ const TimelineEvent: React.FC<{ event: ItineraryEvent; isLast: boolean; onLocati
         <span className="text-sm font-bold text-mag-black font-mono">{event.time}</span>
       </div>
       <div className="flex flex-col items-center mr-4 relative">
-        {/* Changed to rounded-full for circular dots */}
         <div className={`w-3 h-3 rounded-full border-2 z-10 bg-mag-paper ${event.isHighlight ? 'border-mag-red' : 'border-gray-300'}`}></div>
         {!isLast && <div className="w-[1.5px] bg-gray-200 flex-grow my-1"></div>}
       </div>
@@ -61,16 +57,15 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({ onNavigateToDetail
   }, []);
 
   return (
-    <div className="pt-0 animate-in fade-in duration-700">
+    <div className="animate-in fade-in duration-700">
       <div className="pb-32">
-        {/* Changed font-thin back to font-bold for a thicker look as requested */}
-        <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-mag-gold mb-1.5">
+        <p className="text-[9px] font-bold tracking-[0.25em] uppercase text-mag-gold mb-3 pt-6">
           Daily Journey Log
         </p>
 
         <div className="mb-8 relative">
           <div className="pr-14">
-             <h2 className="text-[20px] font-serif font-black text-mag-black mb-1.5 tracking-tight leading-tight">{currentDay.title}</h2>
+             <h2 className="text-[18px] font-serif font-black text-mag-black mb-1.5 tracking-tight leading-tight">{currentDay.title}</h2>
              {currentDay.accommodation && (
                <div className="flex items-center gap-2 mt-2.5">
                  <BedIcon className="w-4 h-4 text-mag-gold" />
@@ -86,7 +81,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({ onNavigateToDetail
           </div>
           {currentDay.mapUrl && (
              <a href={currentDay.mapUrl} target="_blank" rel="noopener noreferrer" className="absolute right-0 top-1 p-3 bg-white rounded-none border border-gray-100 shadow-float text-mag-gold active:scale-90 transition-transform">
-                <MapIcon className="w-6 h-6" />
+                <MapIcon className="w-5 h-5" />
              </a>
           )}
         </div>
@@ -101,7 +96,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({ onNavigateToDetail
       <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         className={`fixed bottom-10 right-6 z-40 p-2.5 bg-mag-black text-white rounded-none shadow-2xl transition-all duration-300 active:scale-90 ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
       </button>
     </div>
   );

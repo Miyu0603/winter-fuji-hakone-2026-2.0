@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tab, ShoppingItem, ExpenseRecord, ChecklistItem } from './types';
 import { LOCATION_DETAILS, GOOGLE_SCRIPT_URL, ITINERARY, TODO_LIST, PACKING_CARRY_ON, PACKING_CHECKED } from './constants';
@@ -123,12 +122,12 @@ const App: React.FC = () => {
   };
 
   const getWeatherIcon = (code: number) => {
-    const ic = "w-11 h-11"; 
+    const ic = "w-9 h-9"; 
     if (code === 0) return <SunIcon className={`${ic} text-mag-gold`} />;
-    if (code >= 1 && code <= 3) return <CloudIcon className={`${ic} text-gray-500`} />;
-    if ((code >= 45 && code <= 48) || (code >= 51 && code <= 55)) return <CloudIcon className={`${ic} text-gray-400`} />;
-    if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return <RainIcon className={`${ic} text-blue-500`} />;
-    if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return <SnowIcon className={`${ic} text-blue-300`} />;
+    if (code >= 1 && code <= 3) return <CloudIcon className={`${ic} text-gray-400`} />;
+    if ((code >= 45 && code <= 48) || (code >= 51 && code <= 55)) return <CloudIcon className={`${ic} text-gray-300`} />;
+    if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return <RainIcon className={`${ic} text-blue-400`} />;
+    if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return <SnowIcon className={`${ic} text-blue-200`} />;
     return <SunIcon className={`${ic} text-mag-gold`} />;
   };
 
@@ -138,53 +137,68 @@ const App: React.FC = () => {
         <DetailView location={LOCATION_DETAILS[selectedLocationId]} onBack={() => setSelectedLocationId(null)} />
       )}
 
-      <header className="fixed top-0 left-0 right-0 z-30 pt-safe-top">
-        <div className="max-w-xl mx-auto px-6 pt-4 pb-0">
-          <div className="flex justify-between items-center mb-4">
+      <header className="fixed top-0 left-0 right-0 z-30 pt-safe-top bg-white">
+        <div className="max-w-xl mx-auto">
+          {/* Row 1: Brand & Weather */}
+          <div className="flex justify-between items-center py-5 px-6">
              <div className="text-left">
-                <div className="flex items-center gap-1.5 mb-2">
+                <div className="flex items-center gap-1.5 mb-1.5">
                   <span className="bg-mag-black text-white text-[10px] px-1.5 py-0.5 rounded-none font-black tracking-normal leading-none">2026</span>
                   <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-mag-gold">Tokyo Trip</span>
                 </div>
-                <h1 className="font-serif text-mag-black">
-                  <span className="block text-[20px] font-black tracking-tight leading-none">冬富士之旅</span>
-                </h1>
+                <h1 className="font-noto font-medium text-[20px] leading-none">冬富士之旅</h1>
              </div>
-
-             <a href="https://www.google.com/search?q=Tokyo+weather" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 active:opacity-50 transition-opacity">
-                 <div className="flex flex-col items-end">
-                     {weather && (
-                       <>
-                         <span className="text-lg font-bold font-serif text-mag-black leading-none">{weather.temp}°</span>
-                         <span className="text-[9px] font-black uppercase tracking-widest text-mag-gray mt-1.5">TOKYO</span>
-                       </>
-                     )}
-                 </div>
-                 <div className="shrink-0">{weather && getWeatherIcon(weather.code)}</div>
-             </a>
+             {weather && (
+               <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    {/* Position Swapped per user request: Temp on top, Region below (assuming from previous 'swapped' comment) */}
+                    <div className="text-lg font-mono font-black text-mag-black leading-none mb-1">{weather.temp}°C</div>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase leading-none tracking-tighter">TOKYO</div>
+                  </div>
+                  {getWeatherIcon(weather.code)}
+               </div>
+             )}
           </div>
 
-          <div className="flex w-full justify-between items-end">
-            {[Tab.ITINERARY, Tab.PREP, Tab.COST, Tab.PACKING, Tab.SHOPPING, Tab.INFO].map((tab) => (
-              <button key={tab} onClick={() => setActiveTab(tab)}
-                className={`flex-1 pb-3 text-sm font-bold tracking-wide transition-all relative whitespace-nowrap text-center font-serif ${activeTab === tab ? 'text-mag-black' : 'text-gray-400'}`}
+          {/* Row 2: Navigation Tabs - Smaller gap above, thicker gold active indicator */}
+          <nav className="flex w-full bg-white">
+            {Object.values(Tab).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 pt-0 pb-3 text-[13px] font-noto transition-all border-b-[4px] text-center whitespace-nowrap ${
+                  activeTab === tab 
+                    ? 'border-mag-gold text-mag-black font-bold' 
+                    : 'border-transparent text-gray-400 font-normal'
+                }`}
               >
-                {tab === Tab.ITINERARY && '行程'}{tab === Tab.PREP && '準備'}{tab === Tab.COST && '記帳'}{tab === Tab.PACKING && '行李'}{tab === Tab.SHOPPING && '購物'}{tab === Tab.INFO && '資訊'}
-                {activeTab === tab && <span className="absolute bottom-0 left-0 right-0 h-[4px] bg-mag-gold rounded-none"></span>}
+                {tab === Tab.ITINERARY ? '行程' : 
+                 tab === Tab.PREP ? '準備' : 
+                 tab === Tab.COST ? '記帳' : 
+                 tab === Tab.PACKING ? '行李' : 
+                 tab === Tab.SHOPPING ? '購物' : '資訊'}
               </button>
             ))}
-          </div>
-          <div className="w-full h-[1px] bg-gray-100"></div>
+          </nav>
 
+          {/* Row 3: Date Selector */}
           {activeTab === Tab.ITINERARY && (
-            <div className="flex w-full justify-between py-2 animate-in fade-in slide-in-from-top-1">
+            <div className="flex w-full border-t border-gray-50 bg-white px-2">
               {ITINERARY.map((day, idx) => (
-                <button key={idx} onClick={() => setSelectedDateIdx(idx)}
-                  className="flex-1 flex flex-col items-center justify-center transition-all group"
+                <button
+                  key={idx}
+                  onClick={() => setSelectedDateIdx(idx)}
+                  className="flex-1 flex flex-col items-center justify-center py-3 transition-all"
                 >
-                  <div className={`w-12 py-1.5 flex flex-col items-center justify-center transition-all rounded-none ${idx === selectedDateIdx ? 'bg-mag-black text-white' : 'text-gray-400'}`}>
-                    <span className={`text-[10px] font-bold tracking-wider mb-0.5 ${idx === selectedDateIdx ? 'text-white/60' : 'opacity-60'}`}>{day.date}</span>
-                    <span className="text-xs font-black">{day.weekday.replace('星期', '')}</span>
+                  <div className={`flex flex-col items-center justify-center w-11 h-11 transition-all ${
+                    selectedDateIdx === idx ? 'bg-mag-black text-white' : 'bg-transparent'
+                  }`}>
+                    <div className={`text-[9px] font-bold mb-1 leading-none ${selectedDateIdx === idx ? 'text-gray-300' : 'text-mag-gray'}`}>
+                      {day.weekday[2]}
+                    </div>
+                    <div className={`text-[11px] font-mono font-black leading-none ${selectedDateIdx === idx ? 'text-white' : 'text-mag-gray'}`}>
+                      {day.date}
+                    </div>
                   </div>
                 </button>
               ))}
@@ -193,18 +207,34 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <div className={activeTab === Tab.ITINERARY ? "h-[165px]" : "h-[115px]"}></div>
-
-      <main className="max-w-xl mx-auto px-6">
-        {activeTab === Tab.ITINERARY && <ItineraryView onNavigateToDetail={setSelectedLocationId} selectedDateIdx={selectedDateIdx} setSelectedDateIdx={setSelectedDateIdx} />}
-        {activeTab === Tab.PREP && <PrepView checkedItems={checkedItems} toggleItem={toggleItem} list={todoList} setList={setTodoList} />}
-        {activeTab === Tab.PACKING && <PackingView checkedItems={checkedItems} toggleItem={toggleItem} carryOnList={carryOnList} setCarryOnList={setCarryOnList} checkedBagList={checkedBagList} setCheckedBagList={setCheckedBagList} />}
-        {activeTab === Tab.INFO && <InfoView />}
-        {activeTab === Tab.COST && <CostView expenses={expenses} isLoading={isExpensesLoading} fetchError={expensesError} onRefresh={fetchExpenses} onAddSuccess={fetchExpenses} />}
-        {activeTab === Tab.SHOPPING && <ShoppingView items={shoppingList} setItems={setShoppingList} />}
+      {/* Main Content Area - Corrected padding-top due to tighter header */}
+      <main className={`max-w-xl mx-auto px-6 ${activeTab === Tab.ITINERARY ? 'pt-[190px]' : 'pt-[120px]'} min-h-screen`}>
+        {activeTab === Tab.ITINERARY && (
+          <ItineraryView onNavigateToDetail={setSelectedLocationId} selectedDateIdx={selectedDateIdx} />
+        )}
+        {activeTab === Tab.PREP && (
+          <PrepView checkedItems={checkedItems} toggleItem={toggleItem} list={todoList} setList={setTodoList} />
+        )}
+        {activeTab === Tab.PACKING && (
+          <PackingView 
+            checkedItems={checkedItems} 
+            toggleItem={toggleItem} 
+            carryOnList={carryOnList} 
+            setCarryOnList={setCarryOnList}
+            checkedBagList={checkedBagList}
+            setCheckedBagList={setCheckedBagList}
+          />
+        )}
+        {activeTab === Tab.SHOPPING && (
+          <ShoppingView items={shoppingList} setItems={setShoppingList} />
+        )}
+        {activeTab === Tab.COST && (
+          <CostView expenses={expenses} isLoading={isExpensesLoading} fetchError={expensesError} onRefresh={fetchExpenses} onAddSuccess={fetchExpenses} />
+        )}
+        {activeTab === Tab.INFO && (
+          <InfoView />
+        )}
       </main>
-      
-      <div className="pb-safe-bottom h-10"></div>
     </div>
   );
 };
