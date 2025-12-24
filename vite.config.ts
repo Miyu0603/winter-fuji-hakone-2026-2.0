@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // 確保在 GitHub Pages 的子路徑下也能正確讀取檔案
+  // 建議改為您的儲存庫名稱，前後都要有斜線
+  base: '/winter-fuji-hakone-2026-2.0/', 
   build: {
     outDir: 'dist',
   }
