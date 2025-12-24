@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { LocationDetail } from '../types';
 import { MapIcon, CopyIcon, BusIcon, WalkIcon, XIcon } from '../components/Icons';
@@ -60,7 +59,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ location, onBack }) => {
                   <div className="flex justify-between items-end">
                     <div>
                       <div className="text-[10px] font-bold text-gray-400 mb-0.5 tracking-wider">BOOKING REFERENCE</div>
-                      <div className="text-2xl font-mono font-bold text-white tracking-tight leading-none">{location.reservation.id}</div>
+                      <div className="text-2xl font-mono font-bold text-white tracking-tight leading-none">{location.reservation?.id}</div>
                     </div>
                     <button onClick={() => handleCopy(location.reservation?.id)} className="bg-white/10 hover:bg-white/20 p-2.5 transition-colors">
                       <CopyIcon className="w-4 h-4 text-mag-gold"/>
@@ -73,7 +72,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ location, onBack }) => {
                 </div>
 
                 <div className="bg-white p-6 space-y-7">
-                  {location.reservation.sections.map((s, i) => (
+                  {location.reservation?.sections.map((s, i) => (
                     <div key={i}>
                       <div className="flex items-center gap-2 mb-4">
                         <div className="w-1.5 h-1.5 bg-mag-gold rotate-45"></div>
@@ -87,7 +86,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ location, onBack }) => {
                           </div>
                         ))}
                       </div>
-                      {i < location.reservation.sections.length - 1 && <div className="mt-6 border-b border-gray-50"></div>}
+                      {location.reservation && i < location.reservation.sections.length - 1 && <div className="mt-6 border-b border-gray-50"></div>}
                     </div>
                   ))}
                 </div>
@@ -128,7 +127,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ location, onBack }) => {
                   {location.transitLegs.map((leg, idx) => (
                     <div key={idx} className="relative pl-12 last:pb-0">
                       {/* Line Connector */}
-                      {idx < location.transitLegs!.length - 1 && (
+                      {location.transitLegs && idx < location.transitLegs.length - 1 && (
                         <div className="absolute left-[15px] top-8 bottom-[-32px] w-[3px] bg-gray-100"></div>
                       )}
                       
