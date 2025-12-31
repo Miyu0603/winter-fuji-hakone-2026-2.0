@@ -122,7 +122,7 @@ export const JAPANESE_PHRASES = [
       { jp: 'お勧め (おすすめ)', cn: '推薦' },
     ],
     sentences: [
-      { jp: '富士山が本当に綺麗ですね！こんな絕景は第一次看。', cn: '富士山真的好美喔！我第一次看到這種絕景。' },
+      { jp: '富士山が本当に綺麗ですね！這麼漂亮的絕景我還是第一次看。', cn: '富士山真的好美喔！我第一次看到這種絕景。' },
       { jp: 'この近くで、地元の人に人気のお勧めレストランはありますか？', cn: '這附近有沒有在地人也常去、推薦的餐廳呢？' },
       { jp: '台灣から來ました。日本はとても楽しいです。', cn: '我從台灣來的。日本真的很好玩。' },
     ]
@@ -421,7 +421,7 @@ export const LOCATION_DETAILS: Record<string, LocationDetail> = {
 export const ITINERARY: DaySchedule[] = [
   {
     date: '2/27',
-    weekday: '星期四',
+    weekday: '星期五',
     title: '抵達日本 → 河口湖溫泉',
     accommodation: '河口湖新世紀飯店',
     accommodationMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hotel+New+Century+Kawaguchiko',
@@ -430,7 +430,6 @@ export const ITINERARY: DaySchedule[] = [
       { time: '10:35', description: '抵達成田機場並辦理入境手續', note: '預計 1 小時' },
       { time: '11:39', description: '搭乘 Skyliner 前往上野', note: '下一班 11:59', locationId: 'skyliner', isHighlight: true },
       { time: '12:30', description: '抵達上野站，轉乘 JR 山手線至東京車站' },
-      // Fix: Remove 'id' property which is not present in the ItineraryEvent type.
       { time: '13:00', description: '抵達東京車站，購買午餐' },
       { time: '14:10', description: '搭乘高速巴士前往河口湖站', isHighlight: true, note: '預計 16:10 抵達' },
       { time: '16:30', description: '抵達河口湖站，聯繫飯店接駁' },
@@ -441,7 +440,7 @@ export const ITINERARY: DaySchedule[] = [
   },
   {
     date: '2/28',
-    weekday: '星期五',
+    weekday: '星期六',
     title: '河口湖景點一日自駕',
     accommodation: '河口湖新世紀飯店',
     accommodationMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hotel+New+Century+Kawaguchiko',
@@ -461,7 +460,7 @@ export const ITINERARY: DaySchedule[] = [
   },
   {
     date: '3/01',
-    weekday: '星期六',
+    weekday: '星期日',
     title: '箱根經典環線一日遊',
     accommodation: '御殿場2號超級飯店',
     accommodationMapUrl: 'https://www.google.com/maps/search/?api=1&query=Super+Hotel+Gotemba+2',
@@ -488,7 +487,7 @@ export const ITINERARY: DaySchedule[] = [
   },
   {
     date: '3/02',
-    weekday: '星期日',
+    weekday: '星期一',
     title: '御殿場 Outlet → 淺草',
     accommodation: '淺草超級飯店',
     accommodationMapUrl: 'https://www.google.com/maps/search/?api=1&query=Super+Hotel+Asakusa',
@@ -506,7 +505,7 @@ export const ITINERARY: DaySchedule[] = [
   },
   {
     date: '3/03',
-    weekday: '星期一',
+    weekday: '星期二',
     title: '淺草散策 → 歸國',
     mapUrl: 'https://www.google.com/maps/dir/Super+Hotel+Asakusa/Senso-ji/Yonekyu+Sukiyaki/Kappabashi+Dougu+Street/Ueno+Station/Narita+Airport',
     events: [
