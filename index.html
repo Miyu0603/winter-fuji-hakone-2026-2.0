@@ -14,13 +14,13 @@
     <!-- Google Fonts: Noto Serif JP -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
 
-    <!-- Favicon (Browser Tab) - Keep SVG -->
+    <!-- Favicon (Browser Tab) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23F9F9F7'/%3E%3Cpath d='M64 416h384L308 140c-15-28-56-28-71 0L64 416z' fill='%235D7C8F'/%3E%3Cpath d='M256 128l68 120-38 24-30-40-30 40-38-24 68-120z' fill='%23FFFFFF'/%3E%3C/svg%3E" />
     
-    <!-- Apple Touch Icon (iOS Home Screen) - 改為絕對路徑 -->
+    <!-- Apple Touch Icon (PWA 必備，請保留以確保手機圖示正常) -->
     <link rel="apple-touch-icon" href="/winter-fuji-hakone-2026-2.0/icon-512.png" />
 
-    <!-- Android Manifest - 改為絕對路徑 -->
+    <!-- Android Manifest -->
     <link rel="manifest" href="/winter-fuji-hakone-2026-2.0/manifest.json" />
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,13 +29,13 @@
         theme: {
           extend: {
             colors: {
-              'mag-paper': '#F9F9F7',       // Main Background (Off-white)
-              'mag-white': '#FFFFFF',       // Card Background
-              'mag-black': '#2C2C2C',       // Primary Text
-              'mag-gray': '#8E8E8E',        // Secondary Text/Lines
-              'mag-gold': '#C5A059',        // Accent/Highlight
-              'mag-gold-light': '#F4F1EA',  // Highlight Background
-              'mag-red': '#C63D0F',         // Warning/Highlight Text
+              'mag-paper': '#F9F9F7',
+              'mag-white': '#FFFFFF',
+              'mag-black': '#2C2C2C',
+              'mag-gray': '#8E8E8E',
+              'mag-gold': '#C5A059',
+              'mag-gold-light': '#F4F1EA',
+              'mag-red': '#C63D0F',
             },
             fontFamily: {
               sans: ['-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue', 'Arial', 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', 'sans-serif'],
@@ -55,17 +55,14 @@
       }
     </script>
     <style>
-      /* 全域隱藏捲軸，但保留捲動功能 */
       html, body, .no-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;     /* Firefox */
-          overflow-x: hidden;        /* 防止左右晃動 */
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+          overflow-x: hidden;
       }
-
       *::-webkit-scrollbar {
-          display: none !important; /* Chrome, Safari and Opera */
+          display: none !important;
       }
-
       body {
         -webkit-tap-highlight-color: transparent;
         background-color: #F9F9F7;
@@ -73,13 +70,11 @@
         width: 100%;
         min-height: 100vh;
       }
-
       header {
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         background-color: #FFFFFF;
       }
-      
       #root {
         width: 100%;
         overflow-x: hidden;
@@ -99,7 +94,7 @@
 </head>
   <body class="bg-mag-paper text-mag-black antialiased selection:bg-mag-gold selection:text-white no-scrollbar">
     <div id="root" class="no-scrollbar"></div>
-    <!-- 進入點腳本 - 改為絕對路徑 -->
+    <!-- 進入點腳本使用絕對路徑 -->
     <script type="module" src="/winter-fuji-hakone-2026-2.0/index.tsx"></script>
   </body>
 </html>
