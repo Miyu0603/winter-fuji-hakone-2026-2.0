@@ -17,10 +17,10 @@
     <!-- Favicon (Browser Tab) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23F9F9F7'/%3E%3Cpath d='M64 416h384L308 140c-15-28-56-28-71 0L64 416z' fill='%235D7C8F'/%3E%3Cpath d='M256 128l68 120-38 24-30-40-30 40-38-24 68-120z' fill='%23FFFFFF'/%3E%3C/svg%3E" />
     
-    <!-- Apple Touch Icon (PWA 必備，請保留以確保手機圖示正常) -->
+    <!-- Apple Touch Icon (絕對路徑供手機識別) -->
     <link rel="apple-touch-icon" href="/winter-fuji-hakone-2026-2.0/icon-512.png" />
 
-    <!-- Android Manifest -->
+    <!-- Android Manifest (絕對路徑供手機識別) -->
     <link rel="manifest" href="/winter-fuji-hakone-2026-2.0/manifest.json" />
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -94,7 +94,7 @@
 </head>
   <body class="bg-mag-paper text-mag-black antialiased selection:bg-mag-gold selection:text-white no-scrollbar">
     <div id="root" class="no-scrollbar"></div>
-    <!-- 進入點腳本使用絕對路徑 -->
-    <script type="module" src="/winter-fuji-hakone-2026-2.0/index.tsx"></script>
+    <!-- 進入點腳本：在編譯時必須是專案內的相對路徑，Vite 輸出時會自動補上 base 路徑 -->
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
