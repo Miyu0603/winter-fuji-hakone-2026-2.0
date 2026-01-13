@@ -1,7 +1,8 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { PRE_TRIP_NOTES } from '../constants';
 import { ChecklistItem } from '../types';
-import { CheckIcon, TrashIcon, EditIcon, PlusIcon, XIcon } from '../components/Icons';
+import { CheckIcon, TrashIcon, EditIcon, PlusIcon, XIcon, SheetIcon, ExternalLinkIcon } from '../components/Icons';
 
 interface PrepViewProps {
   checkedItems: Set<string>;
@@ -9,6 +10,16 @@ interface PrepViewProps {
   list: ChecklistItem[];
   setList: (list: ChecklistItem[]) => void;
 }
+
+const VOUCHERS = [
+  { name: '航班 (Flight Ticket)', url: 'https://drive.google.com/file/d/1uhAF9Our8jLhDNwWqhHH5FUOxCauOInF/view?usp=sharing' },
+  { name: 'Skyliner (Klook)', url: 'https://drive.google.com/file/d/15h89CDz2vxCdvvftBDLqhtFWLsgirWZp/view?usp=sharing' },
+  { name: 'Skyliner (KKday)', url: 'https://drive.google.com/file/d/1kGfpY8EegpQJWn_mGjAMo_ZXISk52ZW8/view?usp=sharing' },
+  { name: '租車憑證', url: 'https://drive.google.com/file/d/1kxv4QwdmiQmsWUKJ_TRjwRFKS9J96aPk/view?usp=drive_link' },
+  { name: '超級飯店淺草', url: 'https://drive.google.com/file/d/1ouzUTLlbnmaonE4dG6zgd1xRz6dSpyXc/view?usp=drive_link' },
+  { name: '超級飯店御殿場2號館', url: 'https://drive.google.com/file/d/1aBnceOHoFX-Z1-ACjKxBGtSY2g8Bgtcg/view?usp=drive_link' },
+  { name: '富士河口湖溫泉新世紀飯店', url: 'https://drive.google.com/file/d/11W_yXiv9smooCziFY3cgm5MA1cs7ReKb/view?usp=drive_link' },
+];
 
 export const PrepView: React.FC<PrepViewProps> = ({ checkedItems, toggleItem, list, setList }) => {
   const [showModal, setShowModal] = useState(false);
@@ -63,7 +74,7 @@ export const PrepView: React.FC<PrepViewProps> = ({ checkedItems, toggleItem, li
   return (
     <div className="pb-32 pt-2 animate-in fade-in duration-500">
       
-      {/* Travel Notes Section - Matched font size to Checklist (text-sm) */}
+      {/* Section 1: Travel Notes */}
       <div className="mb-8 bg-white border border-gray-100 shadow-soft p-5 relative overflow-hidden">
         <div className="flex items-center gap-2 mb-4 border-b border-gray-50 pb-3">
            <div className="w-1 h-4 bg-mag-gold"></div>
@@ -86,7 +97,35 @@ export const PrepView: React.FC<PrepViewProps> = ({ checkedItems, toggleItem, li
         </div>
       </div>
 
-      {/* Section 2: Checklist - Renamed Title to 待辦事項 */}
+      {/* Section 2: Vouchers (Updated) */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h2 className="text-[10px] font-black tracking-[0.2em] text-mag-gray uppercase">所有憑證 Vouchers</h2>
+        </div>
+        <div className="bg-white rounded-none shadow-soft border border-gray-100 overflow-hidden divide-y divide-gray-50">
+          {VOUCHERS.map((voucher, idx) => (
+            <a 
+              key={idx}
+              href={voucher.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors active:bg-gray-100"
+            >
+              <div className="shrink-0 text-mag-gold">
+                <SheetIcon className="w-5 h-5" />
+              </div>
+              <span className="flex-1 text-sm font-black text-mag-black">
+                {voucher.name}
+              </span>
+              <div className="shrink-0 text-gray-300">
+                <ExternalLinkIcon className="w-4 h-4" />
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* Section 3: Checklist */}
       <div className="pt-2">
         <div className="flex items-center justify-between mb-4 px-1">
           <h2 className="text-[10px] font-black tracking-[0.2em] text-mag-gray uppercase">待辦事項</h2>

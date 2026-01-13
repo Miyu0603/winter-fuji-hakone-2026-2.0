@@ -1,3 +1,4 @@
+
 import { DaySchedule, ChecklistItem, LocationDetail, UsefulLink, EmergencyContact } from './types';
 
 // Google Apps Script URL for Expenses
@@ -75,97 +76,102 @@ export const EMERGENCY_CONTACTS: EmergencyContact[] = [
   { title: '訪日外國人急難熱線 (JNTO)', number: '050-3816-2787', note: '24小時多語種對應' },
 ];
 
+// 使用 GitHub Raw 連結，這是最穩定的讀取方式
+const BASE_AUDIO_URL = 'https://raw.githubusercontent.com/Miyu0603/winter-fuji-hakone-2026-2.0/main/audio';
+
 export const JAPANESE_PHRASES = [
   {
     category: '飯店',
     vocab: [
-      { jp: '送迎 (そうげい)', cn: '接送' },
-      { jp: 'シャトルバス', cn: '接駁巴士' },
-      { jp: '預かり (あずかり)', cn: '寄放' },
-      { jp: '門限 (もんげん)', cn: '門禁時間' },
+      { jp: '送迎 (そうげい)', cn: '接送', audio: `${BASE_AUDIO_URL}/Hotel/shuttle_pickup.mp3` },
+      { jp: 'シャトルバス', cn: '接駁巴士', audio: `${BASE_AUDIO_URL}/Hotel/shuttle_bus.mp3` },
+      { jp: '預かり (あずかり)', cn: '寄放', audio: `${BASE_AUDIO_URL}/Hotel/luggage_storage.mp3` },
+      { jp: '門限 (もんげん)', cn: '門禁時間', audio: `${BASE_AUDIO_URL}/Hotel/curfew.mp3` },
+      { jp: '河口湖ホテルニューセンチュリー', cn: '河口湖新世紀飯店', audio: `${BASE_AUDIO_URL}/Hotel/hotel_kawaguchiko.mp3` },
+      { jp: 'スーパーホテル御殿場II号館', cn: '御殿場2號超級飯店', audio: `${BASE_AUDIO_URL}/Hotel/hotel_gotemba.mp3` },
+      { jp: 'スーパーホテル淺草', cn: '淺草超級飯店', audio: `${BASE_AUDIO_URL}/Hotel/hotel_asakusa.mp3` },
     ],
     sentences: [
-      { jp: 'すみません、駅まで送迎（そうげい）バス（シャトルバス）をお願いできますか？', cn: '不好意思，可以請你們安排到車站的接駁車嗎？' },
-      { jp: '荷物を預かっていただけますか？', cn: '可以幫我寄放行李嗎？' },
-      { jp: '何時まで預けることができますか？', cn: '最晚可以寄放到幾點呢？' },
-      { jp: '今天的17時ごろに荷物を取りに来ます。', cn: '我今天下午5點左右會回來拿行李。' },
+      { jp: 'すみません、駅まで送迎（そうげい）バス（シャトルバス）をお願いできますか？', cn: '不好意思，可以請你們安排到車站的接駁車嗎？', audio: `${BASE_AUDIO_URL}/Hotel/sentence_request_bus.mp3` },
+      { jp: '荷物を預かっていただけますか？', cn: '可以幫我寄放行李嗎？', audio: `${BASE_AUDIO_URL}/Hotel/sentence_store_luggage.mp3` },
+      { jp: '何時まで預けることができますか？', cn: '最晚可以寄放到幾點呢？', audio: `${BASE_AUDIO_URL}/Hotel/sentence_storage_time.mp3` },
+      { jp: '今天的17時ごろに荷物を取りに来ます。', cn: '我今天下午5點左右會回來拿行李。', audio: `${BASE_AUDIO_URL}/Hotel/sentence_pickup_time.mp3` },
     ]
   },
   {
     category: '租車',
     vocab: [
-      { jp: 'レギュラー', cn: '普通汽油' },
-      { jp: 'ハイオク', cn: '高級汽油' },
-      { jp: '輕油 (けいゆ)', cn: '柴油' },
-      { jp: '滿タン (まんたん)', cn: '加滿' },
-      { jp: '免責補償 (めんせきほしょう)', cn: '免責補償保險' },
-      { jp: '運轉免許（うんてんめんきょ）', cn: '駕照' },
-      { jp: '滑る（すべる）', cn: '打滑' },
-      { jp: '路面凍結（ろめんとうけつ）', cn: '路面結冰' },
-      { jp: 'スタッドレスタイヤ', cn: '雪胎' },
+      { jp: 'レギュラー', cn: '普通汽油', audio: `${BASE_AUDIO_URL}/CarRental/gas_regular.mp3` },
+      { jp: 'ハイオク', cn: '高級汽油', audio: `${BASE_AUDIO_URL}/CarRental/gas_high_octane.mp3` },
+      { jp: '輕油 (けいゆ)', cn: '柴油', audio: `${BASE_AUDIO_URL}/CarRental/gas_diesel.mp3` },
+      { jp: '滿タン (まんたん)', cn: '加滿', audio: `${BASE_AUDIO_URL}/CarRental/gas_full_tank.mp3` },
+      { jp: '免責補償 (めんせきほしょう)', cn: '免責補償保險', audio: `${BASE_AUDIO_URL}/CarRental/insurance.mp3` },
+      { jp: '運轉免許（うんてんめんきょ）', cn: '駕照', audio: `${BASE_AUDIO_URL}/CarRental/license.mp3` },
+      { jp: '滑る（すべる）', cn: '打滑', audio: `${BASE_AUDIO_URL}/CarRental/slip.mp3` },
+      { jp: '路面凍結（ろめんとうけつ）', cn: '路面結冰', audio: `${BASE_AUDIO_URL}/CarRental/road_freeze.mp3` },
+      { jp: 'スタッドレスタイヤ', cn: '雪胎', audio: `${BASE_AUDIO_URL}/CarRental/studless_tire.mp3` },
     ],
     sentences: [
-      { jp: 'この車の油種はレギュラーでいいですか？', cn: '這台車是加 Regular 汽油就可以了嗎？' },
-      { jp: 'この近くにガソリンスタンドはありますか？', cn: '這附近有加油站嗎？' },
-      { jp: 'この時期、道が凍って(こおって)滑る(すべる)ことはありますか？', cn: '這個時期，路面會結冰導致打滑嗎？' },
-      { jp: 'レギュラーを滿タンでお願いします。', cn: '請幫我加滿 Regular。' },
-      { jp: 'この車はスタッドレスタイヤを履いていますか？', cn: '這台車有換上雪胎嗎？' },
+      { jp: 'この車の油種はレギュラーでいいですか？', cn: '這台車是加 Regular 汽油就可以了嗎？', audio: `${BASE_AUDIO_URL}/CarRental/sentence_gas_type.mp3` },
+      { jp: 'この近くにガソリンスタンドはありますか？', cn: '這附近有加油站嗎？', audio: `${BASE_AUDIO_URL}/CarRental/sentence_gas_station.mp3` },
+      { jp: 'この時期、道が凍って(こおって)滑る(すべる)ことはありますか？', cn: '這個時期，路面會結冰導致打滑嗎？', audio: `${BASE_AUDIO_URL}/CarRental/sentence_road_condition.mp3` },
+      { jp: 'レギュラーを滿タンでお願いします。', cn: '請幫我加滿 Regular。', audio: `${BASE_AUDIO_URL}/CarRental/sentence_fill_up.mp3` },
+      { jp: 'この車はスタッドレスタイヤを履いていますか？', cn: '這台車有換上雪胎嗎？', audio: `${BASE_AUDIO_URL}/CarRental/sentence_check_tire.mp3` },
     ]
   },
   {
     category: '聊天與社交',
     vocab: [
-      { jp: '絕景 (ぜっけい)', cn: '絕美風景' },
-      { jp: '綺麗 (きれい)', cn: '漂亮、美' },
-      { jp: '地元 (じもと)', cn: '在地、當地' },
-      { jp: '初めて (はじめて)', cn: '第一次' },
-      { jp: 'お勧め (おすすめ)', cn: '推薦' },
+      { jp: '絕景 (ぜっけい)', cn: '絕美風景', audio: `${BASE_AUDIO_URL}/Social/view_superb.mp3` },
+      { jp: '綺麗 (きれい)', cn: '漂亮、美', audio: `${BASE_AUDIO_URL}/Social/beautiful.mp3` },
+      { jp: '地元 (じもと)', cn: '在地、當地', audio: `${BASE_AUDIO_URL}/Social/local.mp3` },
+      { jp: '初めて (はじめて)', cn: '第一次', audio: `${BASE_AUDIO_URL}/Social/first_time.mp3` },
+      { jp: 'お勧め (おすすめ)', cn: '推薦', audio: `${BASE_AUDIO_URL}/Social/recommendation.mp3` },
     ],
     sentences: [
-      { jp: '富士山が本当に綺麗ですね！這麼漂亮的絕景我還是第一次看。', cn: '富士山真的好美喔！我第一次看到這種絕景。' },
-      { jp: 'この近くで、地元の人に人気のお勧めレストランはありますか？', cn: '這附近有沒有在地人也常去、推薦的餐廳呢？' },
-      { jp: '台灣から來ました。日本はとても楽しいです。', cn: '我從台灣來的。日本真的很好玩。' },
+      { jp: '富士山が真的漂亮呢！這麼壯觀的景象還是第一次見到。', cn: '富士山真的好美喔！我第一次看到這種絕景。', audio: `${BASE_AUDIO_URL}/Social/sentence_fuji_beautiful.mp3` },
+      { jp: '這附近有沒有在地人也常去、推薦的餐廳呢？', cn: '這附近有沒有在地人也常去、推薦的餐廳呢？', audio: `${BASE_AUDIO_URL}/Social/sentence_restaurant.mp3` },
+      { jp: '我從台灣來的。日本真的很好玩。', cn: '我從台灣來的。日本真的很好玩。', audio: `${BASE_AUDIO_URL}/Social/sentence_from_taiwan.mp3` },
     ]
   },
   {
     category: '地名',
     vocab: [
-      { jp: '成田空港', cn: 'なりたくうこう' },
-      { jp: '上野', cn: 'うえの' },
-      { jp: '東京駅', cn: 'とうきょうえき' },
-      { jp: '河口湖駅', cn: 'かわぐちこえき' },
-      { jp: '新世紀ホテル', cn: 'しんせいきほてる' },
-      { jp: '金鳥居', cn: 'かなどりい' },
-      { jp: '逆さ富士', cn: 'さかさふじ' },
-      { jp: '忍野八海', cn: 'おしのはっかい' },
-      { jp: '山中湖', cn: 'やまなかこ' },
-      { jp: '新倉山浅間公園', cn: 'あらくらやませんげんこうえん' },
-      { jp: '大石公園', cn: 'おおいしこうえん' },
-      { jp: '西湖いやしの里根場', cn: 'さいこいやしのさとねんば' },
-      { jp: '中ノ倉峠', cn: 'なかのくらとうげ' },
-      { jp: 'ほうとう不動', cn: 'ほうとうふどう' },
-      { jp: 'ほうとう蔵 歩成', cn: 'ほうとうぐら ふなり' },
-      { jp: '御殿場駅', cn: 'ごてんばえき' },
-      { jp: '彫刻の森美術館', cn: 'ちょうこくのもりびじゅつかん' },
-      { jp: '強羅駅', cn: 'ごうらえき' },
-      { jp: '早雲山', cn: 'そううんざん' },
-      { jp: '大涌谷', cn: 'おおわくだに' },
-      { jp: '桃源台港', cn: 'とうげんだいこう' },
-      { jp: '箱根海賊船', cn: 'はこねかいぞくせん' },
-      { jp: '元箱根港', cn: 'もとはこねこう' },
-      { jp: '箱根神社', cn: 'はこねじんじゃ' },
-      { jp: '御殿場プレミアム・アウトレット', cn: 'ごてんばぷれみあむあうとれっと' },
-      { jp: '炭焼きレストランさわやか', cn: 'すみやきれすとらんさわやか' },
-      { jp: '浅草', cn: 'あさくさ' },
-      { jp: '浅草寺', cn: 'せんそうじ' },
-      { jp: '仲見世通り', cn: 'なかみせどおり' },
-      { jp: '米久本店', cn: 'よねきゅうほんてん' },
-      { jp: 'かっぱ橋道具街', cn: 'かっぱばしどうぐがい' },
-      { jp: '富士新世紀ホテル', cn: 'ふじしんせいきほてる' },
-      { jp: 'スーパーホテル御殿場２号館', cn: '御殿場2號超級飯店 (ごてんばにごうかん)' },
-      { jp: 'スーパーホテル浅草', cn: '淺草超級飯店 (すーぱーほてるあさくさ)' },
-    ],
-    sentences: []
+      { jp: '成田空港', cn: 'なりたくうこう', audio: `${BASE_AUDIO_URL}/Places/place_narita.mp3` },
+      { jp: '上野', cn: 'うえの', audio: `${BASE_AUDIO_URL}/Places/place_ueno.mp3` },
+      { jp: '東京駅', cn: 'とうきょうえき', audio: `${BASE_AUDIO_URL}/Places/place_tokyo_station.mp3` },
+      { jp: '河口湖駅', cn: 'かわぐちこえき', audio: `${BASE_AUDIO_URL}/Places/place_kawaguchiko_st.mp3` },
+      { jp: '新世紀ホテル', cn: 'しんせいきほてる', audio: `${BASE_AUDIO_URL}/Places/place_hotel_new_century.mp3` },
+      { jp: '金鳥居', cn: 'かなどりい', audio: `${BASE_AUDIO_URL}/Places/place_kanadorii.mp3` },
+      { jp: '逆さ富士', cn: 'さかさふじ', audio: `${BASE_AUDIO_URL}/Places/place_sakasa_fuji.mp3` },
+      { jp: '忍野八海', cn: 'おしのはっかい', audio: `${BASE_AUDIO_URL}/Places/place_oshino_hakkai.mp3` },
+      { jp: '山中湖', cn: 'やまなかこ', audio: `${BASE_AUDIO_URL}/Places/place_yamanakako.mp3` },
+      { jp: '新倉山浅間公園', cn: 'あらくらやませんげんこうえん', audio: `${BASE_AUDIO_URL}/Places/place_arakurayama.mp3` },
+      { jp: '大石公園', cn: 'おおいしこうえん', audio: `${BASE_AUDIO_URL}/Places/place_oishi_park.mp3` },
+      { jp: '西湖いやしの里根場', cn: 'さいこいやしのさとねんば', audio: `${BASE_AUDIO_URL}/Places/place_saiko_iyashi.mp3` },
+      { jp: '中ノ倉峠', cn: 'なかのくらとうげ', audio: `${BASE_AUDIO_URL}/Places/place_nakanokura.mp3` },
+      { jp: 'ほうとう不動', cn: 'ほうとうふどう', audio: `${BASE_AUDIO_URL}/Places/place_houtou_fudo.mp3` },
+      { jp: 'ほうとう蔵 歩成', cn: 'ほうとうぐら ふなり', audio: `${BASE_AUDIO_URL}/Places/place_houtou_funari.mp3` },
+      { jp: '御殿場駅', cn: 'ごてんばえき', audio: `${BASE_AUDIO_URL}/Places/place_gotemba_st.mp3` },
+      { jp: '彫刻の森美術館', cn: 'ちょうこくのもりびじゅつかん', audio: `${BASE_AUDIO_URL}/Places/place_hakone_museum.mp3` },
+      { jp: '強羅駅', cn: 'ごうらえき', audio: `${BASE_AUDIO_URL}/Places/place_gora_st.mp3` },
+      { jp: '早雲山', cn: 'そううんざん', audio: `${BASE_AUDIO_URL}/Places/place_sounzan.mp3` },
+      { jp: '大涌谷', cn: 'おおわくだに', audio: `${BASE_AUDIO_URL}/Places/place_owakudani.mp3` },
+      { jp: '桃源台港', cn: 'とうげんだいこう', audio: `${BASE_AUDIO_URL}/Places/place_togendai.mp3` },
+      { jp: '箱根海賊船', cn: 'はこねかいぞくせん', audio: `${BASE_AUDIO_URL}/Places/place_hakone_ship.mp3` },
+      { jp: '元箱根港', cn: 'もとはこねこう', audio: `${BASE_AUDIO_URL}/Places/place_motohakone.mp3` },
+      { jp: '箱根神社', cn: 'はこねじんじゃ', audio: `${BASE_AUDIO_URL}/Places/place_hakone_shrine.mp3` },
+      { jp: '御殿場プレミアム・アウトレット', cn: 'ごてんばぷれみあむあうとれっと', audio: `${BASE_AUDIO_URL}/Places/place_gotemba_outlet.mp3` },
+      { jp: '炭焼き餐廳さわやか', cn: 'すみやきれすとらんさわやか', audio: `${BASE_AUDIO_URL}/Places/place_sawayaka.mp3` },
+      { jp: '淺草', cn: 'あさくさ', audio: `${BASE_AUDIO_URL}/Places/place_asakusa.mp3` },
+      { jp: '淺草寺', cn: 'せんそうじ', audio: `${BASE_AUDIO_URL}/Places/place_sensoji.mp3` },
+      { jp: '仲見世通り', cn: 'なかみせどおり', audio: `${BASE_AUDIO_URL}/Places/place_nakamise.mp3` },
+      { jp: '米久本店', cn: 'よねきゅうほんてん', audio: `${BASE_AUDIO_URL}/Places/place_yonekyu.mp3` },
+      { jp: '合羽橋道具街', cn: 'かっぱばしどうぐがい', audio: `${BASE_AUDIO_URL}/Places/place_kappabashi.mp3` },
+      { jp: '富士新世紀ホテル', cn: 'ふじしんせいきほてる', audio: `${BASE_AUDIO_URL}/Places/place_fuji_new_century.mp3` },
+      { jp: 'スーパーホテル御殿場２號館', cn: '御殿場2號超級飯店', audio: `${BASE_AUDIO_URL}/Places/place_super_hotel_gotemba.mp3` },
+      { jp: 'スーパーホテル淺草', cn: '淺草超級飯店', audio: `${BASE_AUDIO_URL}/Places/place_super_hotel_asakusa.mp3` },
+    ]
   }
 ];
 
@@ -326,7 +332,7 @@ export const LOCATION_DETAILS: Record<string, LocationDetail> = {
     id: 'hakone_shrine',
     title: '箱根神社',
     description: '建於蘆之湖畔，擁有超過1200年歷史。矗立在湖水中的「平和的鳥居」是其標誌性景觀，充滿神秘莊嚴的氛圍。',
-    address: '神奈川縣足柄下郡箱根町元箱根80-1',
+    address: '神奈川縣足柄下郡箱町元箱根80-1',
     mapUrl: 'https://www.google.com/maps/search/?api=1&query=Hakone+Shrine',
     websiteUrl: 'https://hakonejinja.or.jp/'
   },
@@ -389,9 +395,7 @@ export const LOCATION_DETAILS: Record<string, LocationDetail> = {
   'bus_to_museum': {
     id: 'bus_to_museum',
     title: '巴士轉乘資訊 (御殿場 → 彫刻の森)',
-    description: `10:50 → 11:36 (46分)
-總車資：1300円
-轉乘：1回`,
+    description: "10:50 → 11:36 (46分)\n總車資：1300円\n轉乘：1回",
     transitLegs: [
       {
         type: 'bus',
@@ -411,7 +415,7 @@ export const LOCATION_DETAILS: Record<string, LocationDetail> = {
         type: 'bus',
         transport: '箱根登山巴士 [M線]',
         depTime: '11:22', depStop: '仙石',
-        arrTime: '11:36', arrStop: '彫刻の森美術館',
+        arrTime: '11:36', arrStop: '彫刻的森美術館',
         details: ['往天悠', '💰 570円']
       }
     ]

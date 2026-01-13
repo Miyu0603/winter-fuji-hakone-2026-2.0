@@ -1,8 +1,38 @@
-import React from 'react';
+
+import React, { useState, useRef } from 'react';
 import { USEFUL_LINKS, EMERGENCY_CONTACTS, JAPANESE_PHRASES } from '../constants';
 
 export const InfoView: React.FC = () => {
-  // Helper to map specific links to appropriate emojis
+  const [isPlaying, setIsPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playAudio = (audioPath: string, id: string) => {
+    // If something is already playing, stop it
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    if (isPlaying === id) {
+      setIsPlaying(null);
+      return;
+    }
+
+    const audio = new Audio(audioPath);
+    audioRef.current = audio;
+    setIsPlaying(id);
+
+    audio.play().catch(error => {
+      console.error("Audio playback failed:", error);
+      setIsPlaying(null);
+    });
+
+    audio.onended = () => {
+      setIsPlaying(null);
+      audioRef.current = null;
+    };
+  };
+
   const getLinkEmoji = (title: string) => {
     const t = title.toLowerCase();
     if (t.includes('japan web')) return '🛂';
@@ -84,9 +114,8 @@ export const InfoView: React.FC = () => {
       <div className="space-y-10">
         {JAPANESE_PHRASES.map((section, sIdx) => (
           <div key={sIdx} className="bg-white border-2 border-mag-black overflow-hidden relative">
-            {/* Header: Full width black bar, category on the left */}
-            <div className="bg-mag-black text-white px-5 py-2.5 text-[12px] font-black uppercase tracking-widest w-full">
-              {section.category}
+            <div className="bg-mag-black text-white px-5 py-2.5 text-[12px] font-black uppercase tracking-widest w-full flex justify-between items-center">
+              <span>{section.category}</span>
             </div>
             
             <div className="p-5">
@@ -94,9 +123,22 @@ export const InfoView: React.FC = () => {
                 <h4 className="text-[11px] font-black text-mag-gold uppercase tracking-[0.15em] mb-4 border-b border-gray-100 pb-1.5">關鍵單字 KEYWORDS</h4>
                 <div className="space-y-2">
                   {section.vocab.map((v, vIdx) => (
-                    <div key={vIdx} className="flex items-baseline gap-2 pb-1 border-b border-gray-50 last:border-0">
-                      <span className="text-[14px] font-bold text-mag-black">{v.jp}</span>
-                      <span className="text-[12px] text-mag-gray font-medium">{v.cn}</span>
+                    <div key={vIdx} className="flex items-center justify-between pb-1 border-b border-gray-50 last:border-0 group">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[14px] font-bold text-mag-black">{v.jp}</span>
+                        <span className="text-[12px] text-mag-gray font-medium">{v.cn}</span>
+                      </div>
+                      {v.audio && (
+                        <button 
+                          onClick={() => playAudio(v.audio!, `vocab-${sIdx}-${vIdx}`)}
+                          className={`p-1.5 transition-colors ${isPlaying === `vocab-${sIdx}-${vIdx}` ? 'text-mag-gold' : 'text-gray-300 hover:text-mag-gold'}`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -107,11 +149,24 @@ export const InfoView: React.FC = () => {
                   <h4 className="text-[11px] font-black text-mag-gold uppercase tracking-[0.15em] mb-4 border-b border-gray-100 pb-1.5">實用句子 PHRASES</h4>
                   <div className="space-y-5">
                     {section.sentences.map((sent, pIdx) => (
-                      <div key={pIdx} className="flex gap-3">
+                      <div key={pIdx} className="flex gap-3 group">
                         <div className="mt-1 w-1.5 h-1.5 bg-mag-gold shrink-0"></div>
-                        <div className="flex flex-col gap-1.5">
-                          <div className="text-[15px] font-bold text-mag-black leading-snug">
-                            {sent.jp}
+                        <div className="flex flex-col gap-1.5 flex-1">
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="text-[15px] font-bold text-mag-black leading-snug">
+                              {sent.jp}
+                            </div>
+                            {sent.audio && (
+                              <button 
+                                onClick={() => playAudio(sent.audio!, `sent-${sIdx}-${pIdx}`)}
+                                className={`p-1 mt-0.5 transition-colors shrink-0 ${isPlaying === `sent-${sIdx}-${pIdx}` ? 'text-mag-gold' : 'text-gray-300 hover:text-mag-gold'}`}
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                </svg>
+                              </button>
+                            )}
                           </div>
                           <div className="text-[12px] font-medium text-mag-gray">
                             {sent.cn}
