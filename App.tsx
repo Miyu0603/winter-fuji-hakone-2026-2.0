@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Tab, ShoppingItem, ExpenseRecord, ChecklistItem } from './types';
 import { LOCATION_DETAILS, GOOGLE_SCRIPT_URL, ITINERARY, TODO_LIST, PACKING_CARRY_ON, PACKING_CHECKED } from './constants';
@@ -137,7 +138,7 @@ const App: React.FC = () => {
         <DetailView location={LOCATION_DETAILS[selectedLocationId]} onBack={() => setSelectedLocationId(null)} />
       )}
 
-      <header className="fixed top-0 left-0 right-0 z-30 pt-safe-top bg-white">
+      <header className="fixed top-0 left-0 right-0 z-30 pt-safe-top bg-white border-b border-gray-100">
         <div className="max-w-xl mx-auto">
           {/* Row 1: Brand & Weather */}
           <div className="flex justify-between items-center py-5 px-6">
@@ -151,7 +152,6 @@ const App: React.FC = () => {
              {weather && (
                <div className="flex items-center gap-3">
                   <div className="text-right">
-                    {/* Position Swapped per user request: Temp on top, Region below (assuming from previous 'swapped' comment) */}
                     <div className="text-lg font-mono font-black text-mag-black leading-none mb-1">{weather.temp}°C</div>
                     <div className="text-[10px] font-bold text-gray-400 uppercase leading-none tracking-tighter">TOKYO</div>
                   </div>
@@ -160,7 +160,7 @@ const App: React.FC = () => {
              )}
           </div>
 
-          {/* Row 2: Navigation Tabs - Smaller gap above, thicker gold active indicator */}
+          {/* Row 2: Navigation Tabs */}
           <nav className="flex w-full bg-white">
             {Object.values(Tab).map((tab) => (
               <button
@@ -207,8 +207,13 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content Area - Corrected padding-top due to tighter header */}
-      <main className={`max-w-xl mx-auto px-6 ${activeTab === Tab.ITINERARY ? 'pt-[190px]' : 'pt-[120px]'} min-h-screen`}>
+      {/* Main Content Area - 增加 Safe Area 補償 */}
+      <main 
+        className={`max-w-xl mx-auto px-6 pt-safe-top min-h-screen`}
+        style={{ 
+          paddingTop: `calc(${activeTab === Tab.ITINERARY ? '205px' : '135px'} + env(safe-area-inset-top))` 
+        }}
+      >
         {activeTab === Tab.ITINERARY && (
           <ItineraryView onNavigateToDetail={setSelectedLocationId} selectedDateIdx={selectedDateIdx} />
         )}
